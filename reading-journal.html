@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>読書記録</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@300;400;500;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/index.js"></script>
+<style>
+:root {
+  --bg: #ffffff;
+  --bg-soft: #f9f8f6;
+  --bg-warm: #f5f3ef;
+  --beige: #ede9e1;
+  --beige-dark: #d5cfc4;
+  --royal: #3a5fa8;
+  --royal-light: #5578c0;
+  --royal-pale: #eaeefc;
+  --royal-mid: #c0ccec;
+  --text-dark: #2c2c2c;
+  --text-mid: #666;
+  --text-light: #999;
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.07);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.09);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.14);
+  --font: 'M PLUS Rounded 1c','Noto Sans JP',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:var(--font);background:var(--bg-soft);color:var(--text-dark);min-height:100vh;overflow-x:hidden}
+
+/* HEADER */
+.hdr{background:var(--bg);border-bottom:1px solid var(--beige);box-shadow:var(--shadow-sm);position:sticky;top:0;z-index:100}
+.hdr-top{height:54px;display:flex;align-items:center;justify-content:center;padding:0 16px}
+.hdr-title{font-size:17px;font-weight:700;color:var(--text-dark);letter-spacing:.03em}
+
+/* FAB */
+.fab{position:fixed;right:22px;bottom:28px;width:60px;height:60px;background:var(--royal);border:none;border-radius:50%;cursor:pointer;color:#fff;font-size:28px;font-weight:300;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(58,95,168,.45);z-index:150;transition:transform .2s,box-shadow .2s;line-height:1}
+.fab:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(58,95,168,.55)}
+.fab:active{transform:scale(0.95)}
+
+/* TAB BAR */
+.tab-bar{display:flex;border-top:1px solid var(--beige)}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:8px 4px 9px;cursor:pointer;color:var(--text-light);font-size:11px;font-weight:500;transition:color .2s;position:relative;border:none;background:none;font-family:var(--font)}
+.tab-item ph-icon{font-size:22px;line-height:1;display:block}
+.tab-item.active{color:var(--royal)}
+.tab-item.active::after{content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;background:var(--royal);border-radius:2px 2px 0 0}
+
+/* DRAWER */
+.drw-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.28);z-index:200;backdrop-filter:blur(2px)}
+.drw-ov.open{display:block}
+.drw{position:fixed;left:-300px;top:0;width:280px;height:100%;background:var(--bg);z-index:201;transition:left .3s cubic-bezier(.32,.72,0,1);display:flex;flex-direction:column;box-shadow:4px 0 32px rgba(0,0,0,.1)}
+.drw.open{left:0}
+.drw-hdr{padding:52px 24px 18px;border-bottom:1px solid var(--beige);background:var(--bg-warm)}
+.drw-name{font-size:17px;font-weight:700;color:var(--royal)}
+.drw-sub{font-size:12px;color:var(--text-light);margin-top:3px}
+.drw-nav{flex:1;padding:10px 0}
+.drw-item{display:flex;align-items:center;gap:12px;padding:13px 24px;cursor:pointer;color:var(--text-mid);font-size:14px;font-weight:500;transition:background .2s,color .2s;border-left:3px solid transparent}
+.drw-item:hover{background:var(--bg-soft)}
+.drw-item.active{background:var(--royal-pale);color:var(--royal);border-left-color:var(--royal)}
+.drw-item i,.drw-item ph-icon{width:20px;text-align:center;font-size:18px;display:flex;align-items:center;justify-content:center}
+
+/* PAGES */
+.page{display:none;padding-bottom:100px}
+.page.active{display:block}
+
+/* CONTROLS */
+.ctrl-bar{background:var(--bg);padding:10px 13px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;border-bottom:1px solid var(--beige)}
+.seg{display:flex;background:var(--beige);border-radius:10px;overflow:hidden;flex-shrink:0}
+.seg-btn{background:none;border:none;cursor:pointer;padding:7px 13px;font-size:13px;font-weight:500;font-family:var(--font);color:var(--text-mid);transition:all .2s;white-space:nowrap}
+.seg-btn.active{background:var(--royal);color:#fff;border-radius:8px}
+.sort-sel{background:var(--beige);border:none;border-radius:10px;padding:7px 12px;font-size:13px;font-family:var(--font);color:var(--text-mid);cursor:pointer;flex-shrink:0}
+.srch{flex:1;min-width:110px;display:flex;align-items:center;gap:7px;background:var(--bg-soft);border:1px solid var(--beige);border-radius:10px;padding:6px 10px}
+.srch ph-icon{color:var(--text-light);font-size:16px;flex-shrink:0}
+.srch i{color:var(--text-light);font-size:12px}
+.srch input{flex:1;border:none;background:none;outline:none;font-family:var(--font);font-size:13px;color:var(--text-dark)}
+.srch input::placeholder{color:var(--text-light)}
+
+/* FILTER BAR */
+.flt-bar{background:var(--bg);padding:8px 13px;display:flex;gap:8px;border-bottom:1px solid var(--beige)}
+.flt-pill{display:flex;align-items:center;gap:6px;background:var(--beige);border:1.5px solid transparent;border-radius:20px;padding:8px 16px;font-size:13px;font-weight:500;font-family:var(--font);color:var(--text-mid);cursor:pointer;transition:all .2s}
+.flt-pill i{font-size:11px}
+.flt-pill.ag{background:var(--royal-pale);border-color:var(--royal);color:var(--royal)}
+.flt-pill.ae{background:#fce8ec;border-color:#d05070;color:#c03060}
+
+/* SHEET (filter + add type) */
+.sh-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.28);z-index:250;backdrop-filter:blur(2px)}
+.sh-ov.open{display:block}
+.sh{position:fixed;bottom:-110%;left:0;right:0;background:var(--bg);border-radius:20px 20px 0 0;z-index:251;padding-bottom:28px;box-shadow:0 -6px 28px rgba(0,0,0,.1);transition:bottom .32s cubic-bezier(.32,.72,0,1);max-height:72vh;overflow-y:auto}
+.sh.open{bottom:0}
+.sh-handle{width:36px;height:4px;background:var(--beige-dark);border-radius:2px;margin:10px auto 0}
+.sh-title{padding:14px 20px 10px;font-size:15px;font-weight:700;color:var(--text-dark);border-bottom:1px solid var(--beige);display:flex;align-items:center;gap:8px}
+.sh-tags{padding:14px 20px;display:flex;flex-wrap:wrap;gap:10px}
+.sh-tag{background:var(--beige);border:1.5px solid transparent;border-radius:20px;padding:10px 20px;font-size:14px;font-weight:500;font-family:var(--font);color:var(--text-mid);cursor:pointer;transition:all .2s}
+.sh-tag.sg{background:var(--royal-pale);border-color:var(--royal);color:var(--royal)}
+.sh-tag.se{background:#fce8ec;border-color:#d05070;color:#c03060}
+.sh-clear{margin:4px 20px 0;background:none;border:1px solid var(--beige-dark);border-radius:10px;padding:10px;font-size:13px;font-family:var(--font);color:var(--text-mid);cursor:pointer;width:calc(100% - 40px)}
+
+/* ADD TYPE SHEET */
+.add-type-opts{padding:14px 20px;display:flex;flex-direction:column;gap:10px}
+.add-type-btn{display:flex;align-items:center;gap:14px;background:var(--bg-soft);border:1.5px solid var(--beige);border-radius:14px;padding:14px 18px;font-size:15px;font-weight:600;font-family:var(--font);color:var(--text-dark);cursor:pointer;transition:all .2s;text-align:left}
+.add-type-btn:hover{border-color:var(--royal);background:var(--royal-pale);color:var(--royal)}
+.add-type-btn i{font-size:20px;color:var(--royal);width:24px;text-align:center}
+.add-type-btn .sub{font-size:12px;font-weight:400;color:var(--text-light);display:block;margin-top:2px}
+
+/* GRID */
+.grid{padding:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.m-lbl{grid-column:1/-1;padding:10px 4px 6px;font-size:12px;font-weight:700;color:var(--royal);letter-spacing:.05em;border-bottom:1px solid var(--royal-mid);margin-bottom:2px}
+.tile{aspect-ratio:1/1;border-radius:10px;overflow:hidden;cursor:pointer;background:var(--beige);box-shadow:var(--shadow-sm);position:relative;transition:transform .15s}
+.tile:active{transform:scale(.94)}
+.tile img{width:100%;height:100%;object-fit:cover}
+.no-cov{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--beige),var(--beige-dark));color:var(--text-light);font-size:9px;text-align:center;padding:6px;gap:4px}
+.no-cov i{font-size:20px;color:var(--beige-dark)}
+.wrap{display:flex;flex-direction:column;gap:4px}
+.lbl{font-size:10px;color:var(--text-mid);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* WANT LIST */
+.wlist{padding:10px;display:flex;flex-direction:column;gap:9px}
+.wcard{background:var(--bg);border-radius:14px;display:flex;overflow:hidden;cursor:pointer;box-shadow:var(--shadow-sm);border:1px solid var(--beige);transition:box-shadow .2s}
+.wcard:hover{box-shadow:var(--shadow-md)}
+.wthumb{width:70px;flex-shrink:0;background:var(--beige);overflow:hidden;display:flex;align-items:center;justify-content:center}
+.wthumb img{width:100%;height:100%;object-fit:cover}
+.wthumb i{font-size:24px;color:var(--beige-dark)}
+.wbody{flex:1;padding:11px;min-width:0}
+.wtitle{font-size:14px;font-weight:600;color:var(--text-dark);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wmeta{font-size:11px;color:var(--text-light);display:flex;gap:7px;margin-bottom:5px}
+.wtags{display:flex;flex-wrap:wrap;gap:4px}
+.wmt{background:var(--royal-pale);border-radius:8px;padding:2px 8px;font-size:10px;color:var(--royal)}
+.wgrid{padding:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+
+/* MODAL */
+.mo-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;overflow-y:auto;backdrop-filter:blur(2px)}
+.mo-ov.open{display:flex;align-items:flex-start;justify-content:center;padding:24px 0}
+.mo{background:var(--bg);width:min(480px,95vw);border-radius:20px;overflow:hidden;box-shadow:var(--shadow-lg);margin:auto;position:relative}
+.mo-x{position:absolute;top:11px;right:11px;background:rgba(0,0,0,.32);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:12px;z-index:10;display:flex;align-items:center;justify-content:center}
+.mo-img{width:100%;height:200px;object-fit:cover;display:block}
+.mo-img-ph{width:100%;height:200px;background:var(--beige);display:flex;align-items:center;justify-content:center}
+.mo-img-ph i{font-size:50px;color:var(--beige-dark)}
+.mo-body{padding:16px 18px}
+.mo-gtags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:9px}
+.mo-gtag{background:var(--royal-pale);color:var(--royal);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600}
+.mo-title{font-size:18px;font-weight:700;line-height:1.4;margin-bottom:3px}
+.mo-author{font-size:13px;color:var(--text-mid);margin-bottom:11px}
+.mo-meta{font-size:12px;color:var(--text-light);display:flex;align-items:center;gap:6px;margin-bottom:10px}
+.mo-meta i{color:var(--royal)}
+.rating-badge{display:inline-flex;align-items:center;gap:5px;background:#fff8e6;border-radius:20px;padding:4px 12px;font-size:13px;color:#b07a00;margin-bottom:11px}
+.mo-etags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:13px}
+.mo-etag{background:#fce8ec;color:#c03060;border-radius:20px;padding:3px 10px;font-size:11px}
+.mo-memo{background:var(--bg-warm);border-radius:10px;padding:11px 13px;font-size:13px;color:var(--text-mid);line-height:1.7;margin-bottom:14px;border-left:3px solid var(--royal-mid)}
+.mo-acts{display:flex;gap:8px}
+.btn-p{flex:1;background:var(--royal);color:#fff;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:600;font-family:var(--font);cursor:pointer}
+.btn-d{background:none;border:1.5px solid #e05070;color:#c03060;border-radius:10px;padding:11px 13px;font-size:14px;font-family:var(--font);cursor:pointer}
+.btn-done{width:100%;background:var(--royal);color:#fff;border:none;border-radius:12px;padding:13px;font-size:15px;font-weight:700;font-family:var(--font);cursor:pointer;margin-bottom:9px;display:flex;align-items:center;justify-content:center;gap:8px}
+.url-lnk{display:flex;align-items:center;gap:6px;color:var(--royal);font-size:13px;text-decoration:none;margin-bottom:11px}
+.url-lnk:hover{text-decoration:underline}
+
+/* FORM */
+.fo-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:400;overflow-y:auto}
+.fo-ov.open{display:flex;align-items:flex-start;justify-content:center;padding:20px 0}
+.fo-m{background:var(--bg);width:min(480px,95vw);border-radius:20px;overflow:hidden;box-shadow:var(--shadow-lg);margin:auto}
+.fo-hd{background:var(--royal);padding:13px 17px;display:flex;align-items:center;justify-content:space-between}
+.fo-hd h2{font-size:16px;font-weight:700;color:#fff}
+.fo-hd-x{background:none;border:none;color:rgba(255,255,255,.7);cursor:pointer;font-size:18px;padding:2px 6px}
+.fo-body{padding:16px;display:flex;flex-direction:column;gap:13px}
+.fsec{font-size:11px;font-weight:700;color:var(--royal);letter-spacing:.08em;text-transform:uppercase;margin-bottom:-5px}
+.flbl{font-size:13px;font-weight:500;color:var(--text-mid);display:flex;align-items:center;gap:5px;margin-bottom:5px}
+.freq{background:#e05070;color:#fff;font-size:9px;padding:1px 5px;border-radius:3px}
+.cover-drop{width:100%;height:148px;border:2px dashed var(--beige-dark);border-radius:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--text-light);font-size:13px;position:relative;overflow:hidden;background:var(--bg-soft);transition:border-color .2s}
+.cover-drop:hover{border-color:var(--royal)}
+.cover-drop i{font-size:26px;color:var(--beige-dark)}
+.cover-drop input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.cover-drop img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.drop-hint{position:relative;z-index:1;text-align:center}
+.ai-bar{background:#edf5f0;border:1px solid #7db89a;border-radius:10px;padding:10px 13px;display:flex;align-items:center;gap:10px;font-size:13px;color:#2d7a52}
+.ai-bar i{font-size:16px}
+.ai-go{margin-left:auto;background:#2d7a52;color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-family:var(--font);cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:5px}
+.fi{width:100%;background:var(--bg-soft);border:1px solid var(--beige);border-radius:10px;padding:10px 12px;font-size:14px;font-family:var(--font);color:var(--text-dark);outline:none;transition:border-color .2s}
+.fi:focus{border-color:var(--royal);background:var(--bg)}
+textarea.fi{resize:vertical;min-height:74px;line-height:1.6}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--beige);border:1.5px solid transparent;border-radius:20px;padding:8px 16px;font-size:14px;font-weight:500;font-family:var(--font);color:var(--text-mid);cursor:pointer;transition:all .18s}
+.chip.sg{background:var(--royal-pale);border-color:var(--royal);color:var(--royal)}
+.chip.se{background:#fce8ec;border-color:#d05070;color:#c03060}
+.r-btns{display:flex;gap:8px}
+.r-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;background:var(--bg-soft);border:1.5px solid var(--beige);border-radius:12px;padding:10px 8px;font-family:var(--font);cursor:pointer;transition:all .18s}
+.r-btn .ri{font-size:19px}
+.r-btn .rl{font-size:11px;color:var(--text-light)}
+.r-btn.sel{border-color:#c49a3a;background:#fff9e8}
+.r-btn.sel .rl{color:#8a6a00}
+.fo-sub{background:var(--royal);color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;font-family:var(--font);cursor:pointer;transition:background .2s}
+.fo-sub:hover{background:var(--royal-light)}
+
+/* STATS */
+.sw{padding:14px;display:flex;flex-direction:column;gap:14px}
+.sh2{font-size:18px;font-weight:700;color:var(--text-dark);padding:2px 0 4px}
+.s-nums{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.snc{background:var(--bg);border-radius:14px;padding:13px 9px;text-align:center;box-shadow:var(--shadow-sm);border-top:3px solid var(--royal)}
+.snc:nth-child(2){border-top-color:#3a8a5f}
+.snc:nth-child(3){border-top-color:#8a5f3a}
+.sn{font-size:25px;font-weight:700;color:var(--text-dark);line-height:1.1}
+.snl{font-size:11px;color:var(--text-light);margin-top:3px}
+.sc{background:var(--bg);border-radius:14px;padding:14px;box-shadow:var(--shadow-sm)}
+.sc-ttl{font-size:13px;font-weight:700;color:var(--text-mid);margin-bottom:13px;display:flex;align-items:center;gap:7px}
+.sc-ttl i{color:var(--royal)}
+.srow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pie-wrap{display:flex;flex-direction:column;align-items:center;gap:11px}
+.pie-leg{width:100%;display:flex;flex-direction:column;gap:5px}
+.pie-li{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-mid)}
+.pie-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.pie-nm{flex:1}
+.pie-v{font-weight:600;color:var(--text-dark)}
+.mc-wrap{display:flex;align-items:flex-end;gap:3px;height:68px;padding-bottom:17px}
+.mc-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.mc-bar{width:100%;background:var(--beige);border-radius:3px 3px 0 0;min-height:3px;transition:background .2s}
+.mc-bar.h{background:var(--royal)}
+.mc-lbl{font-size:8px;color:var(--text-light)}
+.wc{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:110px}
+.wc-n{font-size:42px;font-weight:700;color:var(--royal);line-height:1}
+.wc-u{font-size:14px;color:var(--text-light);margin-top:3px}
+
+/* SETTINGS */
+.setw{padding:14px;display:flex;flex-direction:column;gap:13px}
+.seth{font-size:18px;font-weight:700;color:var(--text-dark);padding:2px 0 4px}
+.sets{background:var(--bg);border-radius:14px;overflow:hidden;box-shadow:var(--shadow-sm)}
+.sets-h{background:var(--royal);padding:11px 15px;font-size:13px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px}
+.sets-h i{font-size:13px}
+.sets-b{padding:13px}
+.tmgr{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:11px}
+.ti{display:flex;align-items:center;gap:5px;background:var(--beige);border-radius:20px;padding:5px 12px 5px 13px;font-size:12px;color:var(--text-mid)}
+.tdel{background:none;border:none;cursor:pointer;color:var(--text-light);font-size:12px;transition:color .2s}
+.tdel:hover{color:#c03060}
+.tadd{display:flex;gap:8px}
+.tadd-i{flex:1;background:var(--bg-soft);border:1px solid var(--beige);border-radius:10px;padding:8px 12px;font-size:13px;font-family:var(--font);color:var(--text-dark);outline:none}
+.tadd-go{background:var(--royal);color:#fff;border:none;border-radius:10px;padding:8px 15px;font-size:13px;font-family:var(--font);cursor:pointer}
+
+/* EMPTY */
+.empty{padding:52px 20px;text-align:center;color:var(--text-light);display:flex;flex-direction:column;align-items:center;gap:10px}
+.empty i{font-size:42px;color:var(--beige-dark)}
+.empty h3{font-size:15px;color:var(--text-mid);font-weight:600}
+.empty p{font-size:13px;line-height:1.6}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(10px);background:rgba(36,36,36,.88);color:#fff;padding:10px 20px;border-radius:24px;font-size:13px;opacity:0;transition:all .26s;z-index:999;white-space:nowrap;pointer-events:none;backdrop-filter:blur(4px)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.spin{width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite;display:none}
+.spin.on{display:inline-block}
+@keyframes sp{to{transform:rotate(360deg)}}
+/* Phosphor icon sizing */
+ph-icon{display:inline-flex;align-items:center;justify-content:center}
+.no-cov ph-icon{font-size:22px;color:var(--beige-dark)}
+.mo-img-ph ph-icon{font-size:52px;color:var(--beige-dark)}
+.flt-pill ph-icon{font-size:13px;flex-shrink:0}
+.add-type-btn ph-icon{font-size:22px;color:var(--royal);flex-shrink:0}
+.sets-h ph-icon{font-size:15px}
+.tab-item ph-icon{font-size:20px;line-height:1}
+.drw-item ph-icon{font-size:18px;width:20px}
+.mo-meta ph-icon{font-size:13px;color:var(--royal)}
+.url-lnk ph-icon{font-size:13px}
+.btn-p ph-icon,.btn-done ph-icon,.btn-d ph-icon{font-size:15px;vertical-align:middle}
+.ai-bar ph-icon{font-size:18px;flex-shrink:0}
+.empty ph-icon{font-size:44px;color:var(--beige-dark)}
+.sc-ttl ph-icon{font-size:14px;color:var(--royal)}
+.tdel ph-icon{font-size:11px}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-top">
+    <div class="hdr-title">読書記録</div>
+  </div>
+  <div class="tab-bar">
+    <button class="tab-item active" id="tab-read" onclick="nav('read')">
+      <ph-icon name="books" weight="duotone"></ph-icon>読んだ本
+    </button>
+    <button class="tab-item" id="tab-want" onclick="nav('want')">
+      <ph-icon name="bookmark-simple" weight="duotone"></ph-icon>読みたい本
+    </button>
+    <button class="tab-item" id="tab-stats" onclick="nav('stats')">
+      <ph-icon name="chart-donut" weight="duotone"></ph-icon>統計
+    </button>
+    <button class="tab-item" id="tab-settings" onclick="nav('settings')">
+      <ph-icon name="gear-six" weight="duotone"></ph-icon>設定
+    </button>
+  </div>
+</header>
+
+<!-- FAB -->
+<button class="fab" onclick="openAddSheet()">+</button>
+
+<!-- PAGES -->
+<div class="page active" id="page-read">
+  <div class="ctrl-bar">
+    <div class="seg">
+      <button class="seg-btn active" id="v-all" onclick="setGrp('none')">すべて</button>
+      <button class="seg-btn" id="v-mon" onclick="setGrp('month')">月別</button>
+      <button class="seg-btn" id="v-yr" onclick="setGrp('year')">年別</button>
+    </div>
+    <select class="sort-sel" id="sortSel" onchange="renderRead()">
+      <option value="newest">新しい順</option>
+      <option value="oldest">古い順</option>
+    </select>
+    <div class="srch"><ph-icon name="magnifying-glass" weight="regular"></ph-icon><input type="text" placeholder="検索..." id="srchR" oninput="renderRead()"></div>
+  </div>
+  <div class="flt-bar">
+    <button class="flt-pill" id="fpGenre" onclick="openSheet('rg')"><ph-icon name="stack" weight="duotone"></ph-icon> 本の種類 <span id="fpGC"></span></button>
+    <button class="flt-pill" id="fpEmo" onclick="openSheet('re')"><ph-icon name="smiley" weight="duotone"></ph-icon> 気持ち <span id="fpEC"></span></button>
+  </div>
+  <div class="grid" id="readGrid"></div>
+</div>
+
+<div class="page" id="page-want">
+  <div class="ctrl-bar">
+    <div class="seg">
+      <button class="seg-btn active" id="wv-list" onclick="setWV('list')">リスト</button>
+      <button class="seg-btn" id="wv-grid" onclick="setWV('grid')">写真</button>
+    </div>
+    <div class="srch"><ph-icon name="magnifying-glass" weight="regular"></ph-icon><input type="text" placeholder="検索..." id="srchW" oninput="renderWant()"></div>
+  </div>
+  <div class="flt-bar">
+    <button class="flt-pill" id="fpWG" onclick="openSheet('wg')"><ph-icon name="stack" weight="duotone"></ph-icon> 本の種類 <span id="fpWGC"></span></button>
+  </div>
+  <div id="wantCont"></div>
+</div>
+
+<div class="page" id="page-stats"><div class="sw" id="statsCont"></div></div>
+<div class="page" id="page-settings"><div class="setw" id="setCont"></div></div>
+
+<!-- ADD TYPE SHEET -->
+<div class="sh-ov" id="addShOv" onclick="closeAddSheet()"></div>
+<div class="sh" id="addSh">
+  <div class="sh-handle"></div>
+  <div class="sh-title">どちらに追加しますか？</div>
+  <div class="add-type-opts">
+    <button class="add-type-btn" onclick="closeAddSheet();openForm('read')"><ph-icon name="book-open" weight="duotone"></ph-icon><div>読んだ本<span class="sub">読み終わった本を記録する</span></div></button>
+    <button class="add-type-btn" onclick="closeAddSheet();openForm('want')"><ph-icon name="bookmark-simple" weight="duotone"></ph-icon><div>読みたい本<span class="sub">気になる本をリストに追加する</span></div></button>
+  </div>
+</div>
+
+<!-- FILTER SHEET -->
+<div class="sh-ov" id="shOv" onclick="closeSheet()"></div>
+<div class="sh" id="sh">
+  <div class="sh-handle"></div>
+  <div class="sh-title" id="shTitle"></div>
+  <div class="sh-tags" id="shTags"></div>
+  <button class="sh-clear" onclick="clearSheet()">選択をリセット</button>
+</div>
+
+<!-- MODALS -->
+<div class="mo-ov" id="moRead"><div class="mo"><button class="mo-x" onclick="closeMo('moRead')">✕</button><div id="moReadC"></div></div></div>
+<div class="mo-ov" id="moWant"><div class="mo"><button class="mo-x" onclick="closeMo('moWant')">✕</button><div id="moWantC"></div></div></div>
+
+<!-- FORM -->
+<div class="fo-ov" id="foOv">
+  <div class="fo-m">
+    <div class="fo-hd"><h2 id="foTitle">追加</h2><button class="fo-hd-x" onclick="closeForm()">✕</button></div>
+    <div class="fo-body" id="foBody"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let S={
+  readBooks:[],wantBooks:[],
+  emotionTags:['ためになった','せつない','面白い','感動した','怖かった','考えさせられた'],
+  genreTags:['小説','ビジネス本','自己啓発','エッセイ','歴史','科学','詩歌'],
+  grp:'none',gridCols:3,wantView:'list',
+  rGF:[],rEF:[],wGF:[],
+  editId:null,fType:'read',cov:null,fStars:0,fG:[],fE:[],
+  shTarget:null,
+};
+
+function load(){try{const d=JSON.parse(localStorage.getItem('rj3')||'{}');['readBooks','wantBooks','emotionTags','genreTags'].forEach(k=>{if(d[k])S[k]=d[k];});}catch(e){}}
+function save(){try{localStorage.setItem('rj3',JSON.stringify({readBooks:S.readBooks,wantBooks:S.wantBooks,emotionTags:S.emotionTags,genreTags:S.genreTags}));}catch(e){}}
+
+function nav(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.drw-item').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.querySelectorAll('.drw-item')[['read','want','stats','settings'].indexOf(p)].classList.add('active');
+  const t=document.getElementById('tab-'+p);if(t)t.classList.add('active');
+  if(p==='stats')renderStats();
+  if(p==='settings')renderSettings();
+  if(p==='want')renderWant();
+}
+function toggleDrawer(){document.getElementById('drw').classList.toggle('open');document.getElementById('drwOv').classList.toggle('open');}
+function closeDrawer(){document.getElementById('drw').classList.remove('open');document.getElementById('drwOv').classList.remove('open');}
+function closeMo(id){document.getElementById(id).classList.remove('open');}
+
+// ADD SHEET
+function openAddSheet(){document.getElementById('addShOv').classList.add('open');document.getElementById('addSh').classList.add('open');}
+function closeAddSheet(){document.getElementById('addShOv').classList.remove('open');document.getElementById('addSh').classList.remove('open');}
+
+// FILTER SHEET
+function openSheet(t){
+  S.shTarget=t;
+  const isRG=t==='rg',isRE=t==='re';
+  let title,tags,active,sc;
+  if(isRG){title='本の種類で絞り込む';tags=S.genreTags;active=S.rGF;sc='sg';}
+  else if(isRE){title='気持ちで絞り込む';tags=S.emotionTags;active=S.rEF;sc='se';}
+  else{title='本の種類で絞り込む';tags=S.genreTags;active=S.wGF;sc='sg';}
+  document.getElementById('shTitle').innerHTML=title;
+  document.getElementById('shTags').innerHTML=tags.map(t=>`<button class="sh-tag ${active.includes(t)?sc:''}" onclick="toggleST('${t}')">${t}</button>`).join('');
+  document.getElementById('shOv').classList.add('open');
+  document.getElementById('sh').classList.add('open');
+}
+function closeSheet(){document.getElementById('shOv').classList.remove('open');document.getElementById('sh').classList.remove('open');}
+function toggleST(t){
+  const arr=S.shTarget==='rg'?S.rGF:S.shTarget==='re'?S.rEF:S.wGF;
+  const i=arr.indexOf(t);if(i>=0)arr.splice(i,1);else arr.push(t);
+  openSheet(S.shTarget);updFlt();
+  if(S.shTarget.startsWith('r'))renderRead();else renderWant();
+}
+function clearSheet(){
+  if(S.shTarget==='rg')S.rGF=[];else if(S.shTarget==='re')S.rEF=[];else S.wGF=[];
+  openSheet(S.shTarget);updFlt();
+  if(S.shTarget.startsWith('r'))renderRead();else renderWant();
+}
+function updFlt(){
+  const g=document.getElementById('fpGenre'),e=document.getElementById('fpEmo'),wg=document.getElementById('fpWG');
+  if(g){g.classList.toggle('ag',S.rGF.length>0);document.getElementById('fpGC').textContent=S.rGF.length?`(${S.rGF.length})`:''}
+  if(e){e.classList.toggle('ae',S.rEF.length>0);document.getElementById('fpEC').textContent=S.rEF.length?`(${S.rEF.length})`:''}
+  if(wg){wg.classList.toggle('ag',S.wGF.length>0);document.getElementById('fpWGC').textContent=S.wGF.length?`(${S.wGF.length})`:''}
+}
+
+// READ BOOKS
+function setGrp(m){
+  S.grp=m;
+  document.querySelectorAll('#page-read .seg-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById({none:'v-all',month:'v-mon',year:'v-yr'}[m]).classList.add('active');
+  renderRead();
+}
+function setGridCols(n){S.gridCols=Math.max(2,Math.min(5,n));document.getElementById('readGrid').style.gridTemplateColumns=`repeat(${S.gridCols},1fr)`;}
+function initPinch(){
+  const el=document.getElementById('readGrid');let d0=null,c0=S.gridCols;
+  el.addEventListener('touchstart',e=>{if(e.touches.length===2){d0=dist(e);c0=S.gridCols;}},{passive:true});
+  el.addEventListener('touchmove',e=>{if(e.touches.length===2&&d0){const r=d0/dist(e);const n=Math.round(c0*r);const cl=Math.max(2,Math.min(5,n));if(cl!==S.gridCols)setGridCols(cl);}},{passive:true});
+  el.addEventListener('touchend',()=>{d0=null;});
+}
+function dist(e){return Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);}
+
+function renderRead(){
+  updFlt();
+  const grid=document.getElementById('readGrid');
+  grid.style.gridTemplateColumns=`repeat(${S.gridCols},1fr)`;
+  const q=document.getElementById('srchR').value.toLowerCase();
+  const sort=document.getElementById('sortSel').value;
+  let books=[...S.readBooks];
+  if(q)books=books.filter(b=>b.title.toLowerCase().includes(q)||(b.author||'').toLowerCase().includes(q));
+  if(S.rGF.length)books=books.filter(b=>S.rGF.every(t=>(b.genres||[]).includes(t)));
+  if(S.rEF.length)books=books.filter(b=>S.rEF.every(t=>(b.emotionTags||[]).includes(t)));
+  books.sort((a,b)=>sort==='newest'?new Date(b.dateRead)-new Date(a.dateRead):new Date(a.dateRead)-new Date(b.dateRead));
+  if(!books.length){grid.innerHTML=emptyH('book-open','まだ本がありません','右上の + から追加しよう');return;}
+  if(S.grp==='none'){grid.innerHTML=books.map(b=>tileH(b,false)).join('');}
+  else{
+    const g={};
+    books.forEach(b=>{const d=new Date(b.dateRead);const k=S.grp==='month'?`${d.getFullYear()}年${d.getMonth()+1}月`:`${d.getFullYear()}年`;if(!g[k])g[k]=[];g[k].push(b);});
+    grid.innerHTML=Object.entries(g).map(([lbl,bs])=>`<div class="m-lbl">${lbl}（${bs.length}冊）</div>`+bs.map(b=>tileH(b,true)).join('')).join('');
+  }
+}
+function tileH(b,withTitle){
+  const img=b.cover?`<img src="${b.cover}" alt="">`:`<div class="no-cov"><ph-icon name="book" weight="duotone"></ph-icon><span>${b.title}</span></div>`;
+  const tile=`<div class="tile" onclick="openRD('${b.id}')">${img}</div>`;
+  return withTitle?`<div class="wrap">${tile}<div class="lbl">${b.title}</div></div>`:tile;
+}
+
+// READ DETAIL
+const SL=['','良い','普通','悪い'],SI=['','⭐⭐⭐','⭐⭐','⭐'];
+function openRD(id){
+  const b=S.readBooks.find(x=>x.id===id);if(!b)return;
+  const star=b.stars?`<div class="rating-badge">★ ${SI[b.stars]} ${SL[b.stars]}</div>`:'';
+  const gt=(b.genres||[]).map(g=>`<span class="mo-gtag">${g}</span>`).join('');
+  const et=(b.emotionTags||[]).map(t=>`<span class="mo-etag">${t}</span>`).join('');
+  document.getElementById('moReadC').innerHTML=`
+    ${b.cover?`<img src="${b.cover}" class="mo-img">`:`<div class="mo-img-ph"><ph-icon name="book" weight="duotone"></ph-icon></div>`}
+    <div class="mo-body">
+      <div class="mo-gtags">${gt}</div>
+      <div class="mo-title">${b.title}</div>
+      ${b.author?`<div class="mo-author">${b.author}</div>`:''}
+      <div class="mo-meta"><ph-icon name="calendar-blank" weight="regular"></ph-icon> 読み終わった日：${fd(b.dateRead)}</div>
+      ${star}${et?`<div class="mo-etags">${et}</div>`:''}
+      ${b.memo?`<div class="mo-memo">${b.memo}</div>`:''}
+      <div class="mo-acts">
+        <button class="btn-p" onclick="openEF('${id}')"><ph-icon name="pencil-simple" weight="regular"></ph-icon> 編集</button>
+        <button class="btn-d" onclick="delR('${id}')"><ph-icon name="trash" weight="regular"></ph-icon></button>
+      </div>
+    </div>`;
+  document.getElementById('moRead').classList.add('open');
+}
+function delR(id){if(!confirm('削除しますか？'))return;S.readBooks=S.readBooks.filter(b=>b.id!==id);save();closeMo('moRead');renderRead();toast('削除しました');}
+
+// WANT BOOKS
+function setWV(v){
+  S.wantView=v;
+  document.getElementById('wv-list').classList.toggle('active',v==='list');
+  document.getElementById('wv-grid').classList.toggle('active',v==='grid');
+  renderWant();
+}
+function renderWant(){
+  updFlt();
+  const q=document.getElementById('srchW').value.toLowerCase();
+  let books=[...S.wantBooks];
+  if(q)books=books.filter(b=>b.title.toLowerCase().includes(q));
+  if(S.wGF.length)books=books.filter(b=>S.wGF.every(t=>(b.genres||[]).includes(t)));
+  books.sort((a,b)=>new Date(b.addedDate)-new Date(a.addedDate));
+  const c=document.getElementById('wantCont');
+  if(!books.length){c.innerHTML=emptyH('bookmark-simple','読みたい本がありません','右上の + から追加しよう');return;}
+  if(S.wantView==='list'){
+    c.innerHTML=`<div class="wlist">${books.map(b=>wcH(b)).join('')}</div>`;
+  }else{
+    c.innerHTML=`<div class="wgrid">${books.map(b=>{
+      const img=b.cover?`<img src="${b.cover}" alt="">`:`<div class="no-cov"><ph-icon name="bookmark-simple" weight="duotone"></ph-icon><span>${b.title}</span></div>`;
+      return `<div class="wrap"><div class="tile" onclick="openWD('${b.id}')">${img}</div><div class="lbl">${b.title}</div></div>`;
+    }).join('')}</div>`;
+  }
+}
+function wcH(b){
+  const tags=(b.genres||[]).map(t=>`<span class="wmt">${t}</span>`).join('');
+  return `<div class="wcard" onclick="openWD('${b.id}')">
+    <div class="wthumb">${b.cover?`<img src="${b.cover}" alt="">`:'<ph-icon name="bookmark-simple" weight="duotone"></ph-icon>'}</div>
+    <div class="wbody">
+      <div class="wtitle">${b.title}</div>
+      <div class="wmeta">${b.author?`<span>${b.author}</span>`:''}<span>登録日：${fd(b.addedDate)}</span></div>
+      ${tags?`<div class="wtags">${tags}</div>`:''}
+    </div>
+  </div>`;
+}
+function openWD(id){
+  const b=S.wantBooks.find(x=>x.id===id);if(!b)return;
+  const gt=(b.genres||[]).map(g=>`<span class="mo-gtag">${g}</span>`).join('');
+  document.getElementById('moWantC').innerHTML=`
+    ${b.cover?`<img src="${b.cover}" class="mo-img">`:`<div class="mo-img-ph"><ph-icon name="bookmark-simple" weight="duotone"></ph-icon></div>`}
+    <div class="mo-body">
+      <div class="mo-gtags">${gt}</div>
+      <div class="mo-title">${b.title}</div>
+      ${b.author?`<div class="mo-author">${b.author}</div>`:''}
+      <div class="mo-meta"><ph-icon name="calendar-blank" weight="regular"></ph-icon> 登録日：${fd(b.addedDate)}</div>
+      ${b.url?`<a href="${b.url}" target="_blank" class="url-lnk"><ph-icon name="link" weight="regular"></ph-icon> ${b.url}</a>`:''}
+      ${b.memo?`<div class="mo-memo">${b.memo}</div>`:''}
+      <button class="btn-done" onclick="moveToRead('${id}')"><ph-icon name="book-open" weight="duotone"></ph-icon> 読んだ！</button>
+      <div class="mo-acts">
+        <button class="btn-p" onclick="openWEF('${id}')"><ph-icon name="pencil-simple" weight="regular"></ph-icon> 編集</button>
+        <button class="btn-d" onclick="delW('${id}')"><ph-icon name="trash" weight="regular"></ph-icon></button>
+      </div>
+    </div>`;
+  document.getElementById('moWant').classList.add('open');
+}
+function delW(id){if(!confirm('削除しますか？'))return;S.wantBooks=S.wantBooks.filter(b=>b.id!==id);save();closeMo('moWant');renderWant();toast('削除しました');}
+function moveToRead(id){
+  const b=S.wantBooks.find(x=>x.id===id);if(!b)return;
+  S.wantBooks=S.wantBooks.filter(x=>x.id!==id);save();
+  closeMo('moWant');renderWant();
+  openForm('read',{title:b.title,author:b.author,cover:b.cover,genres:b.genres,memo:b.memo});
+  toast('読んだ本に移動します');
+}
+
+// FORM
+function openForm(type,pre){
+  S.fType=type;S.editId=null;S.cov=pre?.cover||null;S.fStars=0;S.fG=pre?.genres||[];S.fE=[];
+  document.getElementById('foTitle').textContent=type==='read'?'読んだ本を追加':'読みたい本を追加';
+  buildForm(type,pre);document.getElementById('foOv').classList.add('open');
+}
+function openEF(id){
+  const b=S.readBooks.find(x=>x.id===id);if(!b)return;
+  S.editId=id;S.fType='read';S.cov=b.cover||null;S.fStars=b.stars||0;S.fG=[...(b.genres||[])];S.fE=[...(b.emotionTags||[])];
+  document.getElementById('foTitle').textContent='本を編集';
+  buildForm('read',b);closeMo('moRead');document.getElementById('foOv').classList.add('open');
+}
+function openWEF(id){
+  const b=S.wantBooks.find(x=>x.id===id);if(!b)return;
+  S.editId=id;S.fType='want';S.cov=b.cover||null;S.fG=[...(b.genres||[])];
+  document.getElementById('foTitle').textContent='読みたい本を編集';
+  buildForm('want',b);closeMo('moWant');document.getElementById('foOv').classList.add('open');
+}
+function closeForm(){document.getElementById('foOv').classList.remove('open');}
+
+function buildForm(type,pre){
+  const isR=type==='read';
+  const gc=S.genreTags.map(t=>`<button type="button" class="chip ${S.fG.includes(t)?'sg':''}" onclick="tChip('g','${t}')">${t}</button>`).join('');
+  const ec=isR?S.emotionTags.map(t=>`<button type="button" class="chip ${S.fE.includes(t)?'se':''}" onclick="tChip('e','${t}')">${t}</button>`).join(''):'';
+  const rH=isR?`<div><div class="fsec">評価</div><div class="r-btns">
+    <button type="button" class="r-btn ${S.fStars===1?'sel':''}" onclick="setSt(1)"><span class="ri">⭐⭐⭐</span><span class="rl">良い</span></button>
+    <button type="button" class="r-btn ${S.fStars===2?'sel':''}" onclick="setSt(2)"><span class="ri">⭐⭐</span><span class="rl">普通</span></button>
+    <button type="button" class="r-btn ${S.fStars===3?'sel':''}" onclick="setSt(3)"><span class="ri">⭐</span><span class="rl">悪い</span></button>
+  </div></div>`:'';
+  const dH=isR?`<div><div class="flbl">読み終わった日 <span class="freq">必須</span></div><input type="date" class="fi" id="fDate" value="${pre?.dateRead||today()}"></div>`:'';
+  const uH=!isR?`<div><div class="flbl">URL（任意）</div><input type="text" class="fi" id="fUrl" placeholder="https://..." value="${pre?.url||''}"></div>`:'';
+
+  document.getElementById('foBody').innerHTML=`
+    <div>
+      <div class="fsec">表紙写真</div>
+      <label class="cover-drop" id="covDrop">
+        ${S.cov?`<img src="${S.cov}">`:`<div class="drop-hint"><ph-icon name="image" weight="duotone"></ph-icon><div>タップして写真を選択</div><div style="font-size:11px;color:#4a7c5f;margin-top:4px">AI でタイトルを読み取れます</div></div>`}
+        <input type="file" accept="image/*" onchange="handleCov(event)">
+      </label>
+    </div>
+    <div class="ai-bar" id="aiBar" style="${S.cov?'':'display:none'}">
+      <ph-icon name="sparkle" weight="duotone"></ph-icon>
+      <span>写真からタイトルを読み取る</span>
+      <button class="ai-go" onclick="aiRead()"><span id="aiTxt">読み取る</span><span class="spin" id="aiSpin"></span></button>
+    </div>
+    <div><div class="flbl">タイトル <span class="freq">必須</span></div><input type="text" class="fi" id="fTitle" placeholder="本のタイトル" value="${pre?.title||''}"></div>
+    <div><div class="flbl">著者名（任意）</div><input type="text" class="fi" id="fAuthor" placeholder="著者名" value="${pre?.author||''}"></div>
+    <div><div class="fsec">ジャンル</div><div class="chips" id="gChips">${gc}</div></div>
+    ${isR?`<div><div class="fsec">気持ちタグ（最大3つ）</div><div class="chips" id="eChips">${ec}</div></div>`:''}
+    ${rH}${dH}${uH}
+    <div><div class="flbl">一言メモ（任意）</div><textarea class="fi" id="fMemo" placeholder="感想や印象に残ったことを...">${pre?.memo||''}</textarea></div>
+    <button class="fo-sub" onclick="submitForm()">保存する</button>
+  `;
+}
+function handleCov(ev){
+  const f=ev.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{S.cov=e.target.result;const d=document.getElementById('covDrop');d.innerHTML=`<img src="${S.cov}"><input type="file" accept="image/*" onchange="handleCov(event)">`;document.getElementById('aiBar').style.display='flex';};
+  r.readAsDataURL(f);
+}
+async function aiRead(){
+  if(!S.cov)return;
+  document.getElementById('aiTxt').textContent='読み取り中...';document.getElementById('aiSpin').classList.add('on');
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:200,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:S.cov.split(',')[1]}},{type:'text',text:'この本の表紙画像からタイトルと著者名とジャンルを読み取ってください。JSONのみで返答: {"title":"","author":"","genre":"小説 or ビジネス本 or その他"}'}]}]})});
+    const data=await res.json();
+    const parsed=JSON.parse((data.content?.[0]?.text||'{}').replace(/```json|```/g,'').trim());
+    if(parsed.title)document.getElementById('fTitle').value=parsed.title;
+    if(parsed.author)document.getElementById('fAuthor').value=parsed.author;
+    if(parsed.genre&&S.genreTags.includes(parsed.genre)&&!S.fG.includes(parsed.genre)){S.fG.push(parsed.genre);document.querySelectorAll('#gChips .chip').forEach(b=>b.classList.toggle('sg',S.fG.includes(b.textContent)));}
+    toast('読み取り完了！');
+  }catch(e){toast('読み取れませんでした。手動で入力してください。');}
+  document.getElementById('aiTxt').textContent='読み取る';document.getElementById('aiSpin').classList.remove('on');
+}
+function tChip(type,tag){
+  if(type==='g'){const i=S.fG.indexOf(tag);if(i>=0)S.fG.splice(i,1);else S.fG.push(tag);document.querySelectorAll('#gChips .chip').forEach(b=>b.classList.toggle('sg',S.fG.includes(b.textContent)));}
+  else{const i=S.fE.indexOf(tag);if(i>=0){S.fE.splice(i,1);}else{if(S.fE.length>=3){toast('タグは最大3つまでです');return;}S.fE.push(tag);}document.querySelectorAll('#eChips .chip').forEach(b=>b.classList.toggle('se',S.fE.includes(b.textContent)));}
+}
+function setSt(n){S.fStars=S.fStars===n?0:n;document.querySelectorAll('.r-btn').forEach((b,i)=>b.classList.toggle('sel',i+1===S.fStars));}
+function submitForm(){
+  const title=document.getElementById('fTitle')?.value?.trim();if(!title){toast('タイトルを入力してください');return;}
+  if(S.fType==='read'){
+    const b={id:S.editId||uid(),title,author:document.getElementById('fAuthor')?.value?.trim()||'',cover:S.cov,genres:[...S.fG],emotionTags:[...S.fE],stars:S.fStars,dateRead:document.getElementById('fDate')?.value||today(),memo:document.getElementById('fMemo')?.value?.trim()||''};
+    if(S.editId){const i=S.readBooks.findIndex(x=>x.id===S.editId);if(i>=0)S.readBooks[i]=b;}else S.readBooks.push(b);
+    renderRead();
+  }else{
+    const b={id:S.editId||uid(),title,author:document.getElementById('fAuthor')?.value?.trim()||'',cover:S.cov,genres:[...S.fG],url:document.getElementById('fUrl')?.value?.trim()||'',memo:document.getElementById('fMemo')?.value?.trim()||'',addedDate:S.editId?(S.wantBooks.find(x=>x.id===S.editId)?.addedDate||today()):today()};
+    if(S.editId){const i=S.wantBooks.findIndex(x=>x.id===S.editId);if(i>=0)S.wantBooks[i]=b;}else S.wantBooks.push(b);
+    renderWant();
+  }
+  save();closeForm();toast(S.editId?'更新しました':'追加しました');
+}
+
+// STATS
+const PC=['#3a5fa8','#6b8dc4','#9ab0d8','#c4b49a','#a8906e','#8a7058','#d0c4b0','#5578c0'];
+function renderStats(){
+  const books=S.readBooks,now=new Date();
+  const ty=books.filter(b=>new Date(b.dateRead).getFullYear()===now.getFullYear());
+  const tm=ty.filter(b=>new Date(b.dateRead).getMonth()===now.getMonth());
+  const gc={};books.forEach(b=>(b.genres||[]).forEach(g=>{gc[g]=(gc[g]||0)+1;}));
+  const md=Array.from({length:12},(_,i)=>({count:books.filter(b=>{const d=new Date(b.dateRead);return d.getFullYear()===now.getFullYear()&&d.getMonth()===i;}).length}));
+  const mx=Math.max(...md.map(m=>m.count),1);
+  document.getElementById('statsCont').innerHTML=`
+    <div class="sh2">統計</div>
+    <div class="s-nums">
+      <div class="snc"><div class="sn">${books.length}</div><div class="snl">総冊数</div></div>
+      <div class="snc"><div class="sn">${ty.length}</div><div class="snl">今年読んだ</div></div>
+      <div class="snc"><div class="sn">${tm.length}</div><div class="snl">今月読んだ</div></div>
+    </div>
+    <div class="sc">
+      <div class="sc-ttl"><ph-icon name="chart-bar" weight="duotone"></ph-icon> ${now.getFullYear()}年 月別冊数</div>
+      <div class="mc-wrap">${md.map((m,i)=>`<div class="mc-col"><div class="mc-bar ${m.count?'h':''}" style="height:${Math.max(3,m.count/mx*52)}px" title="${m.count}冊"></div><div class="mc-lbl">${i+1}</div></div>`).join('')}</div>
+    </div>
+    <div class="srow">
+      <div class="sc">
+        <div class="sc-ttl"><ph-icon name="chart-donut" weight="duotone"></ph-icon> ジャンル内訳</div>
+        <div class="pie-wrap"><canvas id="pieC" width="110" height="110"></canvas><div class="pie-leg" id="pieLeg"></div></div>
+      </div>
+      <div class="sc">
+        <div class="sc-ttl"><ph-icon name="bookmark-simple" weight="duotone"></ph-icon> 読みたい本</div>
+        <div class="wc"><div class="wc-n">${S.wantBooks.length}</div><div class="wc-u">冊</div></div>
+      </div>
+    </div>`;
+  drawPie(gc);
+}
+function drawPie(gc){
+  const canvas=document.getElementById('pieC');if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const entries=Object.entries(gc);const total=entries.reduce((s,[,v])=>s+v,0);
+  if(!total){ctx.fillStyle='#e0dbd0';ctx.beginPath();ctx.arc(55,55,50,0,Math.PI*2);ctx.fill();document.getElementById('pieLeg').innerHTML='<div style="font-size:11px;color:#999">データなし</div>';return;}
+  let angle=-Math.PI/2;
+  entries.forEach(([g,c],i)=>{const sl=(c/total)*Math.PI*2;ctx.beginPath();ctx.moveTo(55,55);ctx.arc(55,55,50,angle,angle+sl);ctx.closePath();ctx.fillStyle=PC[i%PC.length];ctx.fill();angle+=sl;});
+  ctx.beginPath();ctx.arc(55,55,24,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+  document.getElementById('pieLeg').innerHTML=entries.map(([g,c],i)=>`<div class="pie-li"><div class="pie-dot" style="background:${PC[i%PC.length]}"></div><span class="pie-nm">${g}</span><span class="pie-v">${c}</span></div>`).join('');
+}
+
+// SETTINGS
+function renderSettings(){
+  document.getElementById('setCont').innerHTML=`
+    <div class="seth">設定</div>
+    <div class="sets">
+      <div class="sets-h"><ph-icon name="smiley" weight="duotone"></ph-icon> 気持ちタグの管理</div>
+      <div class="sets-b">
+        <div class="tmgr">${S.emotionTags.map(t=>`<div class="ti">${t}<button class="tdel" onclick="delTag('e','${t}')"><ph-icon name="x" weight="bold"></ph-icon></button></div>`).join('')}</div>
+        <div class="tadd"><input class="tadd-i" id="newE" placeholder="新しいタグ..."><button class="tadd-go" onclick="addTag('e')">追加</button></div>
+      </div>
+    </div>
+    <div class="sets">
+      <div class="sets-h"><ph-icon name="stack" weight="duotone"></ph-icon> ジャンルタグの管理</div>
+      <div class="sets-b">
+        <div class="tmgr">${S.genreTags.map(t=>`<div class="ti">${t}<button class="tdel" onclick="delTag('g','${t}')"><ph-icon name="x" weight="bold"></ph-icon></button></div>`).join('')}</div>
+        <div class="tadd"><input class="tadd-i" id="newG" placeholder="新しいジャンル..."><button class="tadd-go" onclick="addTag('g')">追加</button></div>
+      </div>
+    </div>
+    <div class="sets">
+      <div class="sets-h"><ph-icon name="hard-drives" weight="duotone"></ph-icon> データについて</div>
+      <div class="sets-b" style="font-size:13px;color:var(--text-mid);line-height:1.7">
+        データはブラウザのローカルストレージに保存されています。ブラウザのデータを消去すると記録も消えます。<br><br>
+        <button onclick="if(confirm('すべてのデータを削除しますか？')){S.readBooks=[];S.wantBooks=[];save();toast('削除しました');renderSettings();}" style="background:#e05070;color:white;border:none;border-radius:10px;padding:9px 16px;font-size:13px;font-family:var(--font);cursor:pointer;">すべて削除</button>
+      </div>
+    </div>`;
+}
+function addTag(type){const id=type==='e'?'newE':'newG';const v=document.getElementById(id)?.value?.trim();if(!v)return;if(type==='e'){if(!S.emotionTags.includes(v))S.emotionTags.push(v);}else{if(!S.genreTags.includes(v))S.genreTags.push(v);}save();renderSettings();toast('追加しました');}
+function delTag(type,tag){if(type==='e')S.emotionTags=S.emotionTags.filter(t=>t!==tag);else S.genreTags=S.genreTags.filter(t=>t!==tag);save();renderSettings();toast('削除しました');}
+
+// HELPERS
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2);}
+function today(){return new Date().toISOString().slice(0,10);}
+function fd(d){if(!d)return '未設定';const x=new Date(d);return `${x.getFullYear()}年${x.getMonth()+1}月${x.getDate()}日`;}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
+function emptyH(icon,h,p){return `<div class="empty" style="grid-column:1/-1"><ph-icon name="${icon}" weight="duotone"></ph-icon><h3>${h}</h3><p>${p}</p></div>`;}
+
+// INIT
+load();
+if(!S.readBooks.length){
+  S.readBooks=[
+    {id:'d1',title:'夜は短し歩けよ乙女',author:'森見登美彦',cover:null,genres:['小説'],emotionTags:['面白い','感動した'],stars:1,dateRead:'2025-03-10',memo:'京都を舞台にした幻想的な物語。何度読んでも楽しい。'},
+    {id:'d2',title:'ゼロ・トゥ・ワン',author:'ピーター・ティール',cover:null,genres:['ビジネス本'],emotionTags:['ためになった','考えさせられた'],stars:1,dateRead:'2025-02-20',memo:'スタートアップの本質を鋭く指摘している。'},
+    {id:'d3',title:'人間失格',author:'太宰治',cover:null,genres:['小説'],emotionTags:['せつない'],stars:2,dateRead:'2025-01-15',memo:''},
+  ];
+  S.wantBooks=[{id:'w1',title:'騎士団長殺し',author:'村上春樹',cover:null,genres:['小説'],url:'',memo:'',addedDate:'2025-03-01'}];
+  save();
+}
+if(!S.rGF)S.rGF=[];if(!S.rEF)S.rEF=[];if(!S.wGF)S.wGF=[];
+renderRead();renderWant();initPinch();
+</script>
+</body>
+</html>
