@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="読書記録">
 <title>読書記録</title>
 <link href="https://fonts.googleapis.com/css2?family=BIZ+UDGothic:wght@400;700&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/index.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
 :root{
   --bg:#ffffff;
@@ -34,26 +34,26 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 button,select,label,a{touch-action:manipulation}
-html,body{height:100%;overflow:hidden}
-body{font-family:var(--font);background:var(--bg);color:var(--text-dark);letter-spacing:0.07em;display:flex;flex-direction:column}
+html,body{height:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--text-dark);letter-spacing:0.07em}
 
 /* ── HEADER ── */
-.hdr{background:var(--bg);border-bottom:1px solid var(--border);flex-shrink:0;z-index:100}
+.hdr{background:var(--bg);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
 .hdr-top{height:52px;display:flex;align-items:center;justify-content:center;padding:0 16px;position:relative}
 .hdr-title{font-size:17.5px;font-weight:700;color:var(--text-dark)}
 .tab-bar{display:flex;border-top:1px solid var(--border)}
 .tab-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:7px 2px 8px;cursor:pointer;color:var(--text-light);font-size:12.5px;font-weight:500;font-family:var(--font);letter-spacing:0.05em;border:none;background:none;position:relative;transition:color .2s}
-.tab-item ph-icon{font-size:22px;display:block;line-height:1}
+.tab-item i{font-size:22px;display:block;line-height:1}
 .tab-item.active{color:var(--royal);font-weight:700}
 .tab-item.active::after{content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;background:var(--royal);border-radius:2px 2px 0 0}
 
 /* ── SCROLL AREA ── */
-.scroll-area{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;background:var(--bg)}
-.page{display:none;padding-bottom:calc(80px + var(--safe-bottom));background:var(--bg)}
+.scroll-area{background:var(--bg)}
+.page{display:none;padding-bottom:90px;background:var(--bg)}
 .page.active{display:block}
 
 /* ── FAB ── */
-.fab{position:fixed;right:20px;bottom:calc(24px + var(--safe-bottom));width:58px;height:58px;background:var(--royal);border:none;border-radius:50%;cursor:pointer;color:#fff;font-size:28px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(58,95,168,.45);z-index:150;transition:transform .15s;line-height:1}
+.fab{position:fixed;right:20px;bottom:24px;width:58px;height:58px;background:var(--royal);border:none;border-radius:50%;cursor:pointer;color:#fff;font-size:28px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(58,95,168,.45);z-index:150;transition:transform .15s;line-height:1}
 .fab:active{transform:scale(.92)}
 
 /* ── CONTROLS ── */
@@ -63,13 +63,13 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-dark);letter-
 .seg-btn.active{background:var(--royal);color:#fff;border-radius:8px}
 .sort-sel{background:var(--beige-ui);border:none;border-radius:10px;padding:0 7px;font-size:10px;font-family:var(--font);color:var(--text-mid);cursor:pointer;flex-shrink:0;width:70px;height:34px;-webkit-appearance:none;appearance:none;text-align:center}
 .srch{flex:1;min-width:80px;display:flex;align-items:center;gap:6px;background:var(--bg-soft);border:none;border-radius:10px;padding:0 10px;height:34px}
-.srch ph-icon{color:var(--text-light);font-size:14px;flex-shrink:0}
+.srch i{color:var(--text-light);font-size:14px;flex-shrink:0}
 .srch input{flex:1;border:none;background:none;outline:none;font-family:var(--font);font-size:12px;color:var(--text-dark);letter-spacing:0.05em;height:100%}
 .srch input::placeholder{color:var(--text-light)}
 
 /* ── FILTER BAR ── */
 .flt-bar{background:var(--bg);padding:4px 12px 8px;display:flex;gap:7px;border-bottom:none}.flt-pill{display:flex;align-items:center;gap:4px;background:var(--beige-ui);border:1.5px solid transparent;border-radius:20px;padding:4px 10px;font-size:10.5px;font-weight:500;font-family:var(--font);color:var(--text-mid);cursor:pointer;transition:all .2s;letter-spacing:0.04em}
-.flt-pill ph-icon{font-size:10px;flex-shrink:0}
+.flt-pill i{font-size:10px;flex-shrink:0}
 .flt-pill.ag{background:var(--royal-pale);border-color:var(--royal);color:var(--royal)}
 .flt-pill.ae{background:#fce8ec;border-color:#d05070;color:#c03060}
 
@@ -89,7 +89,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-dark);letter-
 /* ── ADD TYPE SHEET ── */
 .add-type-opts{padding:14px 20px;display:flex;flex-direction:column;gap:10px}
 .add-type-btn{display:flex;align-items:center;gap:14px;background:var(--bg-soft);border:1.5px solid var(--border);border-radius:14px;padding:14px 18px;font-size:15px;font-weight:600;font-family:var(--font);color:var(--text-dark);cursor:pointer;text-align:left;transition:all .2s}
-.add-type-btn ph-icon{font-size:22px;color:var(--royal);flex-shrink:0}
+.add-type-btn i{font-size:22px;color:var(--royal);flex-shrink:0}
 .add-type-btn .sub{font-size:12px;font-weight:400;color:var(--text-light);display:block;margin-top:2px}
 
 /* ── GRID ── */
@@ -99,7 +99,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-dark);letter-
 .tile:active{transform:scale(.94)}
 .tile img{width:100%;height:100%;object-fit:contain;background:var(--beige-ui)}
 .no-cov{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--beige-ui);color:#6b4c2a;font-size:9px;text-align:center;padding:6px;gap:4px}
-.no-cov ph-icon{font-size:22px;color:#a07848}
+.no-cov i{font-size:22px;color:#a07848}
 .wrap{display:flex;flex-direction:column;gap:4px}
 .lbl{font-size:10px;color:var(--text-mid);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 
@@ -108,7 +108,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-dark);letter-
 .wcard{background:var(--bg);border-radius:14px;display:flex;overflow:hidden;cursor:pointer;box-shadow:var(--shadow-sm);border:1px solid var(--border);transition:box-shadow .2s}
 .wthumb{width:72px;flex-shrink:0;background:var(--beige-ui);overflow:hidden;display:flex;align-items:center;justify-content:center}
 .wthumb img{width:100%;height:100%;object-fit:contain;background:var(--beige-ui)}
-.wthumb ph-icon{font-size:26px;color:#a07848}
+.wthumb i{font-size:26px;color:#a07848}
 .wbody{flex:1;padding:11px;min-width:0}
 .wtitle{font-size:14px;font-weight:600;color:var(--text-dark);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wmeta{font-size:11px;color:var(--text-light);display:flex;flex-wrap:wrap;gap:6px;margin-bottom:5px}
@@ -123,14 +123,14 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-dark);letter-
 .mo-x{position:absolute;top:12px;right:12px;background:rgba(0,0,0,.28);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:13px;z-index:10;display:flex;align-items:center;justify-content:center}
 .mo-img{width:100%;max-height:240px;object-fit:contain;display:block;background:var(--beige-ui)}
 .mo-img-ph{width:100%;height:180px;background:var(--beige-ui);display:flex;align-items:center;justify-content:center}
-.mo-img-ph ph-icon{font-size:52px;color:#a07848}
+.mo-img-ph i{font-size:52px;color:#a07848}
 .mo-body{padding:16px 18px}
 .mo-gtags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:9px}
 .mo-gtag{background:var(--royal-pale);color:var(--royal);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600}
 .mo-title{font-size:18px;font-weight:700;line-height:1.4;margin-bottom:3px}
 .mo-author{font-size:13px;color:var(--text-mid);margin-bottom:11px}
 .mo-meta{font-size:12px;color:var(--text-light);display:flex;align-items:center;gap:6px;margin-bottom:10px}
-.mo-meta ph-icon{font-size:13px;color:var(--royal)}
+.mo-meta i{font-size:13px;color:var(--royal)}
 .rating-badge{display:inline-flex;align-items:center;gap:5px;background:#fff8e6;border-radius:20px;padding:4px 12px;font-size:13px;color:#b07a00;margin-bottom:11px}
 .mo-etags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:13px}
 .mo-etag{background:#fce8ec;color:#c03060;border-radius:20px;padding:3px 10px;font-size:11px}
@@ -158,14 +158,14 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-dark);letter-
 
 /* Cover */
 .cover-drop{width:100%;height:160px;border:2px dashed var(--border-dark);border-radius:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--text-light);font-size:13px;position:relative;overflow:hidden;background:var(--bg-soft)}
-.cover-drop ph-icon{font-size:28px;color:var(--border-dark)}
+.cover-drop i{font-size:28px;color:var(--border-dark)}
 .cover-drop input{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:0}
 .cover-drop img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:var(--beige-ui)}
 .drop-hint{position:relative;z-index:1;text-align:center;line-height:1.6}
 
 /* AI bar */
 .ai-bar{background:#edf5f0;border:1px solid #7db89a;border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px;font-size:13px;color:#2d7a52}
-.ai-bar ph-icon{font-size:18px;flex-shrink:0}
+.ai-bar i{font-size:18px;flex-shrink:0}
 .ai-go{margin-left:auto;background:#2d7a52;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-family:var(--font);cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:5px}
 
 /* Inputs */
@@ -199,7 +199,7 @@ textarea.fi{resize:none;min-height:80px;line-height:1.6}
 .snl{font-size:11px;color:var(--text-light);margin-top:3px}
 .sc{background:var(--bg);border-radius:14px;padding:14px;box-shadow:var(--shadow-sm)}
 .sc-ttl{font-size:13px;font-weight:700;color:var(--text-mid);margin-bottom:13px;display:flex;align-items:center;gap:7px}
-.sc-ttl ph-icon{font-size:14px;color:var(--royal)}
+.sc-ttl i{font-size:14px;color:var(--royal)}
 .srow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .pie-wrap{display:flex;flex-direction:column;align-items:center;gap:11px}
 .pie-leg{width:100%;display:flex;flex-direction:column;gap:5px}
@@ -221,12 +221,12 @@ textarea.fi{resize:none;min-height:80px;line-height:1.6}
 .seth{font-size:18px;font-weight:700;color:var(--text-dark);padding:2px 0 4px}
 .sets{background:var(--bg);border-radius:14px;overflow:hidden;box-shadow:var(--shadow-sm)}
 .sets-h{background:var(--royal);padding:12px 16px;font-size:13px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px}
-.sets-h ph-icon{font-size:15px}
+.sets-h i{font-size:15px}
 .sets-b{padding:14px}
 .tmgr{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
 .ti{display:flex;align-items:center;gap:5px;background:var(--beige-ui);border-radius:20px;padding:6px 12px 6px 14px;font-size:12px;color:var(--text-mid)}
 .tdel{background:none;border:none;cursor:pointer;color:var(--text-light);font-size:13px;line-height:1;padding:1px}
-.tdel ph-icon{font-size:12px}
+.tdel i{font-size:12px}
 .tadd{display:flex;gap:8px}
 .tadd-i{flex:1;background:var(--beige-ui);border:1px solid var(--border);border-radius:10px;padding:9px 12px;font-size:13px;font-family:var(--font);color:var(--text-dark);outline:none}
 .tadd-go{background:var(--royal);color:#fff;border:none;border-radius:10px;padding:9px 16px;font-size:13px;font-family:var(--font);cursor:pointer}
@@ -237,17 +237,17 @@ textarea.fi{resize:none;min-height:80px;line-height:1.6}
 
 /* ── EMPTY ── */
 .empty{padding:56px 20px;text-align:center;color:var(--text-light);display:flex;flex-direction:column;align-items:center;gap:10px;grid-column:1/-1}
-.empty ph-icon{font-size:44px;color:var(--border-dark)}
+.empty i{font-size:44px;color:var(--border-dark)}
 .empty h3{font-size:15px;color:var(--text-mid);font-weight:600}
 .empty p{font-size:13px;line-height:1.6}
 
 /* ── TOAST ── */
-.toast{position:fixed;bottom:calc(90px + var(--safe-bottom));left:50%;transform:translateX(-50%) translateY(10px);background:rgba(36,36,36,.9);color:#fff;padding:10px 20px;border-radius:24px;font-size:13px;opacity:0;transition:all .25s;z-index:999;white-space:nowrap;pointer-events:none}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(10px);background:rgba(36,36,36,.9);color:#fff;padding:10px 20px;border-radius:24px;font-size:13px;opacity:0;transition:all .25s;z-index:999;white-space:nowrap;pointer-events:none}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .spin{width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite;display:none}
 .spin.on{display:inline-block}
 @keyframes sp{to{transform:rotate(360deg)}}
-ph-icon{display:inline-flex;align-items:center;justify-content:center}
+
 </style>
 </head>
 <body>
@@ -257,10 +257,10 @@ ph-icon{display:inline-flex;align-items:center;justify-content:center}
     <div class="hdr-title">読書記録</div>
   </div>
   <div class="tab-bar">
-    <button class="tab-item active" id="tab-read" onclick="nav('read')"><ph-icon name="books" weight="duotone"></ph-icon>読んだ本</button>
-    <button class="tab-item" id="tab-want" onclick="nav('want')"><ph-icon name="bookmark-simple" weight="duotone"></ph-icon>読みたい本</button>
-    <button class="tab-item" id="tab-stats" onclick="nav('stats')"><ph-icon name="chart-donut" weight="duotone"></ph-icon>統計</button>
-    <button class="tab-item" id="tab-settings" onclick="nav('settings')"><ph-icon name="gear-six" weight="duotone"></ph-icon>設定</button>
+    <button class="tab-item active" id="tab-read" onclick="nav('read')"><i class="fa-solid fa-book-open"></i>読んだ本</button>
+    <button class="tab-item" id="tab-want" onclick="nav('want')"><i class="fa-solid fa-bookmark"></i>読みたい本</button>
+    <button class="tab-item" id="tab-stats" onclick="nav('stats')"><i class="fa-solid fa-chart-pie"></i>統計</button>
+    <button class="tab-item" id="tab-settings" onclick="nav('settings')"><i class="fa-solid fa-gear"></i>設定</button>
   </div>
 </header>
 
@@ -277,11 +277,11 @@ ph-icon{display:inline-flex;align-items:center;justify-content:center}
       <option value="newest">新しい順</option>
       <option value="oldest">古い順</option>
     </select>
-    <div class="srch"><ph-icon name="magnifying-glass" weight="regular"></ph-icon><input type="text" placeholder="検索..." id="srchR" oninput="renderRead()"></div>
+    <div class="srch"><i class="fa-solid fa-magnifying-glass"></i><input type="text" placeholder="検索..." id="srchR" oninput="renderRead()"></div>
   </div>
   <div class="flt-bar">
-    <button class="flt-pill" id="fpGenre" onclick="openSheet('rg')"><ph-icon name="stack" weight="duotone"></ph-icon> 本の種類 <span id="fpGC"></span></button>
-    <button class="flt-pill" id="fpEmo" onclick="openSheet('re')"><ph-icon name="smiley" weight="duotone"></ph-icon> 気持ち <span id="fpEC"></span></button>
+    <button class="flt-pill" id="fpGenre" onclick="openSheet('rg')"><i class="fa-solid fa-layer-group"></i> 本の種類 <span id="fpGC"></span></button>
+    <button class="flt-pill" id="fpEmo" onclick="openSheet('re')"><i class="fa-regular fa-face-smile"></i> 気持ち <span id="fpEC"></span></button>
   </div>
   <div class="grid" id="readGrid"></div>
 </div>
@@ -292,10 +292,10 @@ ph-icon{display:inline-flex;align-items:center;justify-content:center}
       <button class="seg-btn active" id="wv-list" onclick="setWV('list')">リスト</button>
       <button class="seg-btn" id="wv-grid" onclick="setWV('grid')">写真</button>
     </div>
-    <div class="srch"><ph-icon name="magnifying-glass" weight="regular"></ph-icon><input type="text" placeholder="検索..." id="srchW" oninput="renderWant()"></div>
+    <div class="srch"><i class="fa-solid fa-magnifying-glass"></i><input type="text" placeholder="検索..." id="srchW" oninput="renderWant()"></div>
   </div>
   <div class="flt-bar">
-    <button class="flt-pill" id="fpWG" onclick="openSheet('wg')"><ph-icon name="stack" weight="duotone"></ph-icon> 本の種類 <span id="fpWGC"></span></button>
+    <button class="flt-pill" id="fpWG" onclick="openSheet('wg')"><i class="fa-solid fa-layer-group"></i> 本の種類 <span id="fpWGC"></span></button>
   </div>
   <div id="wantCont"></div>
 </div>
@@ -314,8 +314,8 @@ ph-icon{display:inline-flex;align-items:center;justify-content:center}
   <div class="sh-handle"></div>
   <div class="sh-title">どちらに追加しますか？</div>
   <div class="add-type-opts">
-    <button class="add-type-btn" onclick="closeAddSheet();openForm('read')"><ph-icon name="book-open" weight="duotone"></ph-icon><div>読んだ本<span class="sub">読み終わった本を記録する</span></div></button>
-    <button class="add-type-btn" onclick="closeAddSheet();openForm('want')"><ph-icon name="bookmark-simple" weight="duotone"></ph-icon><div>読みたい本<span class="sub">気になる本をリストに追加する</span></div></button>
+    <button class="add-type-btn" onclick="closeAddSheet();openForm('read')"><i class="fa-solid fa-book-open"></i><div>読んだ本<span class="sub">読み終わった本を記録する</span></div></button>
+    <button class="add-type-btn" onclick="closeAddSheet();openForm('want')"><i class="fa-solid fa-bookmark"></i><div>読みたい本<span class="sub">気になる本をリストに追加する</span></div></button>
   </div>
 </div>
 
@@ -354,8 +354,8 @@ let S={
   shTarget:null,
 };
 
-function load(){try{const d=JSON.parse(localStorage.getItem('rj4')||'{}');['readBooks','wantBooks','emotionTags','genreTags'].forEach(k=>{if(d[k])S[k]=d[k];});}catch(e){}}
-function save(){try{localStorage.setItem('rj4',JSON.stringify({readBooks:S.readBooks,wantBooks:S.wantBooks,emotionTags:S.emotionTags,genreTags:S.genreTags}));}catch(e){}}
+function load(){try{if(typeof localStorage==='undefined')return;const d=JSON.parse(localStorage.getItem('rj4')||'{}');['readBooks','wantBooks','emotionTags','genreTags'].forEach(k=>{if(d[k])S[k]=d[k];});}catch(e){}}
+function save(){try{if(typeof localStorage==='undefined')return;localStorage.setItem('rj4',JSON.stringify({readBooks:S.readBooks,wantBooks:S.wantBooks,emotionTags:S.emotionTags,genreTags:S.genreTags}));}catch(e){}}
 
 // ── NAVIGATION ──
 function nav(p){
@@ -400,10 +400,13 @@ function clearSheet(){
   if(S.shTarget.startsWith('r'))renderRead();else renderWant();
 }
 function updFlt(){
-  const g=document.getElementById('fpGenre'),e=document.getElementById('fpEmo'),wg=document.getElementById('fpWG');
-  if(g){g.classList.toggle('ag',S.rGF.length>0);document.getElementById('fpGC').textContent=S.rGF.length?`(${S.rGF.length})`:''}
-  if(e){e.classList.toggle('ae',S.rEF.length>0);document.getElementById('fpEC').textContent=S.rEF.length?`(${S.rEF.length})`:''}
-  if(wg){wg.classList.toggle('ag',S.wGF.length>0);document.getElementById('fpWGC').textContent=S.wGF.length?`(${S.wGF.length})`:''}
+  try{
+    const g=document.getElementById('fpGenre'),e=document.getElementById('fpEmo'),wg=document.getElementById('fpWG');
+    const gc=document.getElementById('fpGC'),ec=document.getElementById('fpEC'),wgc=document.getElementById('fpWGC');
+    if(g&&gc){g.classList.toggle('ag',S.rGF.length>0);gc.textContent=S.rGF.length?`(${S.rGF.length})`:''}
+    if(e&&ec){e.classList.toggle('ae',S.rEF.length>0);ec.textContent=S.rEF.length?`(${S.rEF.length})`:''}
+    if(wg&&wgc){wg.classList.toggle('ag',S.wGF.length>0);wgc.textContent=S.wGF.length?`(${S.wGF.length})`:''}
+  }catch(e){}
 }
 
 // ── READ BOOKS ──
@@ -415,7 +418,7 @@ function setGrp(m){
 }
 function setGridCols(n){S.gridCols=Math.max(2,Math.min(5,n));document.getElementById('readGrid').style.gridTemplateColumns=`repeat(${S.gridCols},1fr)`;}
 function initPinch(){
-  const el=document.getElementById('readGrid');let d0=null,c0=S.gridCols;
+  const el=document.getElementById('readGrid');if(!el)return;let d0=null,c0=S.gridCols;
   el.addEventListener('touchstart',e=>{if(e.touches.length===2){d0=dist(e);c0=S.gridCols;}},{passive:true});
   el.addEventListener('touchmove',e=>{if(e.touches.length===2&&d0){const r=d0/dist(e);const n=Math.round(c0*r);const cl=Math.max(2,Math.min(5,n));if(cl!==S.gridCols)setGridCols(cl);}},{passive:true});
   el.addEventListener('touchend',()=>{d0=null;});
@@ -442,7 +445,7 @@ function renderRead(){
   }
 }
 function tileH(b,wt){
-  const img=b.cover?`<img src="${b.cover}" alt="" loading="lazy">`:`<div class="no-cov"><ph-icon name="book" weight="duotone"></ph-icon><span>${b.title}</span></div>`;
+  const img=b.cover?`<img src="${b.cover}" alt="" loading="lazy">`:`<div class="no-cov"><i class="fa-solid fa-book"></i><span>${b.title}</span></div>`;
   const tile=`<div class="tile" onclick="openRD('${b.id}')">${img}</div>`;
   return wt?`<div class="wrap">${tile}<div class="lbl">${b.title}</div></div>`:tile;
 }
@@ -455,16 +458,16 @@ function openRD(id){
   const gt=(b.genres||[]).map(g=>`<span class="mo-gtag">${g}</span>`).join('');
   const et=(b.emotionTags||[]).map(t=>`<span class="mo-etag">${t}</span>`).join('');
   document.getElementById('moReadC').innerHTML=`
-    ${b.cover?`<img src="${b.cover}" class="mo-img" alt="">`:`<div class="mo-img-ph"><ph-icon name="book" weight="duotone"></ph-icon></div>`}
+    ${b.cover?`<img src="${b.cover}" class="mo-img" alt="">`:`<div class="mo-img-ph"><i class="fa-solid fa-book"></i></div>`}
     <div class="mo-body">
       ${gt?`<div class="mo-gtags">${gt}</div>`:''}
       <div class="mo-title">${b.title}</div>
       ${b.author?`<div class="mo-author">${b.author}</div>`:''}
-      <div class="mo-meta"><ph-icon name="calendar-blank" weight="regular"></ph-icon> 読み終わった日：${fd(b.dateRead)}</div>
+      <div class="mo-meta"><i class="fa-regular fa-calendar"></i> 読み終わった日：${fd(b.dateRead)}</div>
       ${star}${et?`<div class="mo-etags">${et}</div>`:''}
       ${b.memo?`<div class="mo-memo">${b.memo}</div>`:''}
       <div class="mo-acts">
-        <button class="btn-p" onclick="openEF('${id}')"><ph-icon name="pencil-simple" weight="regular"></ph-icon> 編集</button>
+        <button class="btn-p" onclick="openEF('${id}')"><i class="fa-solid fa-pen"></i> 編集</button>
         <button class="btn-d" onclick="delR('${id}')">×</button>
       </div>
     </div>`;
@@ -492,7 +495,7 @@ function renderWant(){
     c.innerHTML=`<div class="wlist">${books.map(b=>wcH(b)).join('')}</div>`;
   }else{
     c.innerHTML=`<div class="wgrid">${books.map(b=>{
-      const img=b.cover?`<img src="${b.cover}" alt="" loading="lazy">`:`<div class="no-cov"><ph-icon name="bookmark-simple" weight="duotone"></ph-icon><span>${b.title}</span></div>`;
+      const img=b.cover?`<img src="${b.cover}" alt="" loading="lazy">`:`<div class="no-cov"><i class="fa-solid fa-bookmark"></i><span>${b.title}</span></div>`;
       return `<div class="wrap"><div class="tile" onclick="openWD('${b.id}')">${img}</div><div class="lbl">${b.title}</div></div>`;
     }).join('')}</div>`;
   }
@@ -500,7 +503,7 @@ function renderWant(){
 function wcH(b){
   const tags=(b.genres||[]).map(t=>`<span class="wmt">${t}</span>`).join('');
   return `<div class="wcard" onclick="openWD('${b.id}')">
-    <div class="wthumb">${b.cover?`<img src="${b.cover}" alt="">`:'<ph-icon name="bookmark-simple" weight="duotone"></ph-icon>'}</div>
+    <div class="wthumb">${b.cover?`<img src="${b.cover}" alt="">`:'<i class="fa-solid fa-bookmark"></i>'}</div>
     <div class="wbody">
       <div class="wtitle">${b.title}</div>
       <div class="wmeta">${b.author?`<span>${b.author}</span>`:''}<span>登録日：${fd(b.addedDate)}</span></div>
@@ -512,17 +515,17 @@ function openWD(id){
   const b=S.wantBooks.find(x=>x.id===id);if(!b)return;
   const gt=(b.genres||[]).map(g=>`<span class="mo-gtag">${g}</span>`).join('');
   document.getElementById('moWantC').innerHTML=`
-    ${b.cover?`<img src="${b.cover}" class="mo-img" alt="">`:`<div class="mo-img-ph"><ph-icon name="bookmark-simple" weight="duotone"></ph-icon></div>`}
+    ${b.cover?`<img src="${b.cover}" class="mo-img" alt="">`:`<div class="mo-img-ph"><i class="fa-solid fa-bookmark"></i></div>`}
     <div class="mo-body">
       ${gt?`<div class="mo-gtags">${gt}</div>`:''}
       <div class="mo-title">${b.title}</div>
       ${b.author?`<div class="mo-author">${b.author}</div>`:''}
-      <div class="mo-meta"><ph-icon name="calendar-blank" weight="regular"></ph-icon> 登録日：${fd(b.addedDate)}</div>
-      ${b.url?`<a href="${b.url}" target="_blank" class="url-lnk"><ph-icon name="link" weight="regular"></ph-icon> リンクを開く</a>`:''}
+      <div class="mo-meta"><i class="fa-regular fa-calendar"></i> 登録日：${fd(b.addedDate)}</div>
+      ${b.url?`<a href="${b.url}" target="_blank" class="url-lnk"><i class="fa-solid fa-link"></i> リンクを開く</a>`:''}
       ${b.memo?`<div class="mo-memo">${b.memo}</div>`:''}
-      <button class="btn-done" onclick="moveToRead('${id}')"><ph-icon name="book-open" weight="duotone"></ph-icon> 読んだ！</button>
+      <button class="btn-done" onclick="moveToRead('${id}')"><i class="fa-solid fa-book-open"></i> 読んだ！</button>
       <div class="mo-acts">
-        <button class="btn-p" onclick="openWEF('${id}')"><ph-icon name="pencil-simple" weight="regular"></ph-icon> 編集</button>
+        <button class="btn-p" onclick="openWEF('${id}')"><i class="fa-solid fa-pen"></i> 編集</button>
         <button class="btn-d" onclick="delW('${id}')">×</button>
       </div>
     </div>`;
@@ -566,12 +569,12 @@ function buildForm(type,pre){
     <div class="f-section">
       <div class="fsec">表紙写真</div>
       <label class="cover-drop" id="covDrop">
-        ${S.cov?`<img src="${S.cov}" alt="">`:`<div class="drop-hint"><ph-icon name="camera" weight="duotone" style="font-size:32px;color:#c2d6ee;display:block;margin:0 auto 6px"></ph-icon><div>タップして写真を選択</div><div style="font-size:11px;color:#4a7c5f;margin-top:4px">AI でタイトルを自動読み取り</div></div>`}
+        ${S.cov?`<img src="${S.cov}" alt="">`:`<div class="drop-hint"><i class="fa-solid fa-camera" style="font-size:32px;color:#c2d6ee;display:block;margin:0 auto 6px"></i><div>タップして写真を選択</div><div style="font-size:11px;color:#4a7c5f;margin-top:4px">AI でタイトルを自動読み取り</div></div>`}
         <input type="file" accept="image/*" capture="environment" onchange="handleCov(event)">
       </label>
     </div>
     <div class="ai-bar" id="aiBar" style="${S.cov?'':'display:none'}">
-      <ph-icon name="sparkle" weight="duotone"></ph-icon>
+      <i class="fa-solid fa-wand-magic-sparkles"></i>
       <span>タイトル・著者を読み取る</span>
       <button class="ai-go" onclick="aiRead()"><span id="aiTxt">読み取る</span><span class="spin" id="aiSpin"></span></button>
     </div>
@@ -634,27 +637,26 @@ async function aiRead(){
   document.getElementById('aiTxt').textContent='読み取り中...';
   document.getElementById('aiSpin').classList.add('on');
   try{
-    // Determine media type from data URL
     const mime=S.cov.match(/data:([^;]+);/)?.[1]||'image/jpeg';
     const b64=S.cov.split(',')[1];
+    const prompt='この本の表紙からタイトル・著者名・ジャンルを読み取り、次のJSON形式のみで返してください。他の文字は不要: title,author,genreのキーを持つJSONオブジェクト。genreは小説/ビジネス本/自己啓発/エッセイ/歴史/科学/詩歌/その他のいずれか。';
     const res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         model:'claude-sonnet-4-20250514',
-        max_tokens:300,
+        max_tokens:200,
         messages:[{role:'user',content:[
           {type:'image',source:{type:'base64',media_type:mime,data:b64}},
-          {type:'text',text:`この画像は本の表紙です。以下の情報を読み取ってJSON形式のみで返してください。他の文字は一切不要です。
-{"title":"タイトルをここに","author":"著者名をここに（不明なら空文字）","genre":"小説 or ビジネス本 or 自己啓発 or エッセイ or 歴史 or 科学 or 詩歌 or その他"}`
-        ]}]}
+          {type:'text',text:prompt}
+        ]}]
       })
     });
     const data=await res.json();
     const raw=(data.content?.[0]?.text||'').replace(/```json|```/g,'').trim();
     const parsed=JSON.parse(raw);
-    if(parsed.title){document.getElementById('fTitle').value=parsed.title;}
-    if(parsed.author){document.getElementById('fAuthor').value=parsed.author;}
+    if(parsed.title)document.getElementById('fTitle').value=parsed.title;
+    if(parsed.author)document.getElementById('fAuthor').value=parsed.author;
     if(parsed.genre&&S.genreTags.includes(parsed.genre)&&!S.fG.includes(parsed.genre)){
       S.fG.push(parsed.genre);
       document.querySelectorAll('#gChips .chip').forEach(b=>b.classList.toggle('sg',S.fG.includes(b.textContent)));
@@ -703,16 +705,16 @@ function renderStats(){
       <div class="snc"><div class="sn">${tm.length}</div><div class="snl">今月読んだ</div></div>
     </div>
     <div class="sc">
-      <div class="sc-ttl"><ph-icon name="chart-bar" weight="duotone"></ph-icon> ${now.getFullYear()}年 月別冊数</div>
+      <div class="sc-ttl"><i class="fa-solid fa-chart-bar"></i> ${now.getFullYear()}年 月別冊数</div>
       <div class="mc-wrap">${md.map((m,i)=>`<div class="mc-col"><div class="mc-bar ${m.count?'h':''}" style="height:${Math.max(3,m.count/mx*52)}px"></div><div class="mc-lbl">${i+1}</div></div>`).join('')}</div>
     </div>
     <div class="srow">
       <div class="sc">
-        <div class="sc-ttl"><ph-icon name="chart-donut" weight="duotone"></ph-icon> ジャンル内訳</div>
+        <div class="sc-ttl"><i class="fa-solid fa-chart-pie"></i> ジャンル内訳</div>
         <div class="pie-wrap"><canvas id="pieC" width="110" height="110"></canvas><div class="pie-leg" id="pieLeg"></div></div>
       </div>
       <div class="sc">
-        <div class="sc-ttl"><ph-icon name="bookmark-simple" weight="duotone"></ph-icon> 読みたい本</div>
+        <div class="sc-ttl"><i class="fa-solid fa-bookmark"></i> 読みたい本</div>
         <div class="wc"><div class="wc-n">${S.wantBooks.length}</div><div class="wc-u">冊</div></div>
       </div>
     </div>`;
@@ -734,25 +736,25 @@ function renderSettings(){
   document.getElementById('setCont').innerHTML=`
     <div class="seth">設定</div>
     <div class="sets">
-      <div class="sets-h"><ph-icon name="smiley" weight="duotone"></ph-icon> 気持ちタグの管理</div>
+      <div class="sets-h"><i class="fa-regular fa-face-smile"></i> 気持ちタグの管理</div>
       <div class="sets-b">
-        <div class="tmgr">${S.emotionTags.map(t=>`<div class="ti">${t}<button class="tdel" onclick="delTag('e','${t}')"><ph-icon name="x" weight="bold"></ph-icon></button></div>`).join('')}</div>
+        <div class="tmgr">${S.emotionTags.map(t=>`<div class="ti">${t}<button class="tdel" onclick="delTag('e','${t}')"><i class="fa-solid fa-xmark"></i></button></div>`).join('')}</div>
         <div class="tadd"><input class="tadd-i" id="newE" placeholder="新しいタグ..."><button class="tadd-go" onclick="addTag('e')">追加</button></div>
       </div>
     </div>
     <div class="sets">
-      <div class="sets-h"><ph-icon name="stack" weight="duotone"></ph-icon> ジャンルタグの管理</div>
+      <div class="sets-h"><i class="fa-solid fa-layer-group"></i> ジャンルタグの管理</div>
       <div class="sets-b">
-        <div class="tmgr">${S.genreTags.map(t=>`<div class="ti">${t}<button class="tdel" onclick="delTag('g','${t}')"><ph-icon name="x" weight="bold"></ph-icon></button></div>`).join('')}</div>
+        <div class="tmgr">${S.genreTags.map(t=>`<div class="ti">${t}<button class="tdel" onclick="delTag('g','${t}')"><i class="fa-solid fa-xmark"></i></button></div>`).join('')}</div>
         <div class="tadd"><input class="tadd-i" id="newG" placeholder="新しいジャンル..."><button class="tadd-go" onclick="addTag('g')">追加</button></div>
       </div>
     </div>
     <div class="sets">
-      <div class="sets-h"><ph-icon name="export" weight="duotone"></ph-icon> データの管理</div>
+      <div class="sets-h"><i class="fa-solid fa-database"></i> データの管理</div>
       <div class="sets-b">
         <p style="font-size:13px;color:var(--text-mid);line-height:1.7;margin-bottom:12px">データをJSONファイルでエクスポート・インポートできます。バックアップや端末の移行にご利用ください。</p>
-        <button class="export-btn" onclick="exportData()"><ph-icon name="download-simple" weight="regular"></ph-icon> データをエクスポート</button>
-        <label class="import-label"><ph-icon name="upload-simple" weight="regular"></ph-icon> データをインポート<input type="file" accept=".json" onchange="importData(event)"></label>
+        <button class="export-btn" onclick="exportData()"><i class="fa-solid fa-download"></i> データをエクスポート</button>
+        <label class="import-label"><i class="fa-solid fa-upload"></i> データをインポート<input type="file" accept=".json" onchange="importData(event)"></label>
         <button class="danger-btn" onclick="if(confirm('すべてのデータを削除しますか？')){S.readBooks=[];S.wantBooks=[];save();toast('削除しました');renderSettings();}">すべて削除</button>
       </div>
     </div>`;
@@ -795,7 +797,7 @@ function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2
 function today(){return new Date().toISOString().slice(0,10);}
 function fd(d){if(!d)return '未設定';const x=new Date(d);return `${x.getFullYear()}年${x.getMonth()+1}月${x.getDate()}日`;}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
-function emptyH(icon,h,p){return `<div class="empty"><ph-icon name="${icon}" weight="duotone"></ph-icon><h3>${h}</h3><p>${p}</p></div>`;}
+function emptyH(icon,h,p){const icMap={"book-open":"fa-solid fa-book-open","bookmark-simple":"fa-solid fa-bookmark"};const ic=icMap[icon]||"fa-solid fa-book";return `<div class="empty"><i class="${ic}"></i><h3>${h}</h3><p>${p}</p></div>`;}
 
 // ── INIT ──
 load();
