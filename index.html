@@ -40,9 +40,9 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-dark);letter-
 /* ── HEADER ── */
 .hdr{background:var(--bg);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
 .hdr-top{height:52px;display:flex;align-items:center;justify-content:center;padding:0 16px;position:relative}
-.hdr-title{font-size:17.5px;font-weight:700;color:var(--text-dark)}
+.hdr-title{font-size:17.5px;font-weight:700;color:var(--text-dark);letter-spacing:0.1em}
 .tab-bar{display:flex;border-top:1px solid var(--border)}
-.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:7px 2px 8px;cursor:pointer;color:var(--text-light);font-size:12.5px;font-weight:500;font-family:var(--font);letter-spacing:0.05em;border:none;background:none;position:relative;transition:color .2s}
+.tab-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:7px 2px 8px;cursor:pointer;color:var(--text-light);font-size:12.5px;font-weight:500;font-family:var(--font);letter-spacing:0.08em;border:none;background:none;position:relative;transition:color .2s}
 .tab-item i{font-size:22px;display:block;line-height:1}
 .tab-item.active{color:var(--royal);font-weight:700}
 .tab-item.active::after{content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;background:var(--royal);border-radius:2px 2px 0 0}
@@ -66,9 +66,13 @@ body{font-family:var(--font);background:var(--bg);color:var(--text-dark);letter-
 .srch i{color:var(--text-light);font-size:14px;flex-shrink:0}
 .srch input{flex:1;border:none;background:none;outline:none;font-family:var(--font);font-size:12px;color:var(--text-dark);letter-spacing:0.05em;height:100%}
 .srch input::placeholder{color:var(--text-light)}
+.srch-sm{display:flex;align-items:center;gap:5px;background:var(--bg-soft);border:none;border-radius:10px;padding:0 9px;height:34px;flex:1;min-width:0;margin-left:0}
+.srch-sm i{color:var(--text-light);font-size:12px;flex-shrink:0}
+.srch-sm input{flex:1;min-width:0;border:none;background:none;outline:none;font-family:var(--font);font-size:11px;color:var(--text-dark);letter-spacing:0.04em;height:100%}
+.srch-sm input::placeholder{color:var(--text-light)}
 
 /* ── FILTER BAR ── */
-.flt-bar{background:var(--bg);padding:4px 12px 8px;display:flex;gap:7px;border-bottom:none}.flt-pill{display:flex;align-items:center;gap:4px;background:var(--beige-ui);border:1.5px solid transparent;border-radius:20px;padding:4px 10px;font-size:10.5px;font-weight:500;font-family:var(--font);color:var(--text-mid);cursor:pointer;transition:all .2s;letter-spacing:0.04em}
+.flt-bar{background:var(--bg);padding:4px 12px 8px;display:flex;gap:7px;border-bottom:none}.flt-pill{display:flex;align-items:center;gap:4px;background:var(--beige-ui);border:1.5px solid transparent;border-radius:10px;padding:0 10px;height:34px;font-size:10.5px;font-weight:500;font-family:var(--font);color:var(--text-mid);cursor:pointer;transition:all .2s;letter-spacing:0.04em;flex-shrink:0}
 .flt-pill i{font-size:10px;flex-shrink:0}
 .flt-pill.ag{background:var(--royal-pale);border-color:var(--royal);color:var(--royal)}
 .flt-pill.ae{background:#fce8ec;border-color:#d05070;color:#c03060}
@@ -257,10 +261,10 @@ textarea.fi{resize:none;min-height:80px;line-height:1.6}
     <div class="hdr-title">読書記録</div>
   </div>
   <div class="tab-bar">
-    <button class="tab-item active" id="tab-read" onclick="nav('read')"><i class="fa-solid fa-book-open"></i>読んだ本</button>
-    <button class="tab-item" id="tab-want" onclick="nav('want')"><i class="fa-solid fa-bookmark"></i>読みたい本</button>
-    <button class="tab-item" id="tab-stats" onclick="nav('stats')"><i class="fa-solid fa-chart-pie"></i>統計</button>
-    <button class="tab-item" id="tab-settings" onclick="nav('settings')"><i class="fa-solid fa-gear"></i>設定</button>
+    <button class="tab-item active" id="tab-read" onclick="nav('read')">読んだ本</button>
+    <button class="tab-item" id="tab-want" onclick="nav('want')">読みたい本</button>
+    <button class="tab-item" id="tab-stats" onclick="nav('stats')">統計</button>
+    <button class="tab-item" id="tab-settings" onclick="nav('settings')">設定</button>
   </div>
 </header>
 
@@ -273,15 +277,9 @@ textarea.fi{resize:none;min-height:80px;line-height:1.6}
       <button class="seg-btn" id="v-mon" onclick="setGrp('month')">月別</button>
       <button class="seg-btn" id="v-yr" onclick="setGrp('year')">年別</button>
     </div>
-    <select class="sort-sel" id="sortSel" onchange="renderRead()">
-      <option value="newest">新しい順</option>
-      <option value="oldest">古い順</option>
-    </select>
-    <div class="srch"><i class="fa-solid fa-magnifying-glass"></i><input type="text" placeholder="検索..." id="srchR" oninput="renderRead()"></div>
-  </div>
-  <div class="flt-bar">
     <button class="flt-pill" id="fpGenre" onclick="openSheet('rg')"><i class="fa-solid fa-layer-group"></i> 本の種類 <span id="fpGC"></span></button>
     <button class="flt-pill" id="fpEmo" onclick="openSheet('re')"><i class="fa-regular fa-face-smile"></i> 気持ち <span id="fpEC"></span></button>
+    <div class="srch-sm"><i class="fa-solid fa-magnifying-glass"></i><input type="text" placeholder="検索..." id="srchR" oninput="renderRead()"></div>
   </div>
   <div class="grid" id="readGrid"></div>
 </div>
@@ -292,10 +290,8 @@ textarea.fi{resize:none;min-height:80px;line-height:1.6}
       <button class="seg-btn active" id="wv-list" onclick="setWV('list')">リスト</button>
       <button class="seg-btn" id="wv-grid" onclick="setWV('grid')">写真</button>
     </div>
-    <div class="srch"><i class="fa-solid fa-magnifying-glass"></i><input type="text" placeholder="検索..." id="srchW" oninput="renderWant()"></div>
-  </div>
-  <div class="flt-bar">
     <button class="flt-pill" id="fpWG" onclick="openSheet('wg')"><i class="fa-solid fa-layer-group"></i> 本の種類 <span id="fpWGC"></span></button>
+    <div class="srch-sm"><i class="fa-solid fa-magnifying-glass"></i><input type="text" placeholder="検索..." id="srchW" oninput="renderWant()"></div>
   </div>
   <div id="wantCont"></div>
 </div>
@@ -316,6 +312,27 @@ textarea.fi{resize:none;min-height:80px;line-height:1.6}
   <div class="add-type-opts">
     <button class="add-type-btn" onclick="closeAddSheet();openForm('read')"><i class="fa-solid fa-book-open"></i><div>読んだ本<span class="sub">読み終わった本を記録する</span></div></button>
     <button class="add-type-btn" onclick="closeAddSheet();openForm('want')"><i class="fa-solid fa-bookmark"></i><div>読みたい本<span class="sub">気になる本をリストに追加する</span></div></button>
+    <button class="add-type-btn" onclick="closeAddSheet();openBulk()"><i class="fa-solid fa-list"></i><div>まとめて登録<span class="sub">メモの箇条書きから一括追加</span></div></button>
+  </div>
+</div>
+
+<!-- BULK IMPORT SHEET -->
+<div class="sh-ov" id="bulkOv" onclick="closeBulk()"></div>
+<div class="sh" id="bulkSh" style="max-height:85vh">
+  <div class="sh-handle"></div>
+  <div class="sh-title">読みたい本をまとめて登録</div>
+  <div style="padding:14px 20px;display:flex;flex-direction:column;gap:12px">
+    <div style="font-size:13px;color:var(--text-mid);line-height:1.7">
+      メモアプリの箇条書きをそのまま貼り付けてください。<br>
+      <span style="color:var(--text-light);font-size:12px">・や-や●などの記号は自動で取り除きます</span>
+    </div>
+    <textarea id="bulkInput" placeholder="例：&#10;・騎士団長殺し&#10;・コンビニ人間&#10;・82年生まれ、キム・ジヨン" style="width:100%;height:160px;background:var(--bg-soft);border:1px solid var(--border);border-radius:10px;padding:11px 13px;font-size:14px;font-family:var(--font);color:var(--text-dark);outline:none;resize:none;line-height:1.7;letter-spacing:0.05em"></textarea>
+    <div id="bulkPreview" style="display:none;background:var(--bg-soft);border-radius:10px;padding:11px 13px">
+      <div style="font-size:12px;font-weight:700;color:var(--royal);margin-bottom:8px">登録予定のタイトル：</div>
+      <div id="bulkList" style="display:flex;flex-direction:column;gap:5px"></div>
+    </div>
+    <button onclick="previewBulk()" style="background:var(--bg-soft);border:1.5px solid var(--border);border-radius:10px;padding:11px;font-size:14px;font-family:var(--font);color:var(--text-mid);cursor:pointer">内容を確認する</button>
+    <button id="bulkRegBtn" onclick="execBulk()" style="display:none;background:var(--royal);color:#fff;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:700;font-family:var(--font);cursor:pointer">まとめて登録する</button>
   </div>
 </div>
 
@@ -369,6 +386,45 @@ function nav(p){
   if(p==='want')renderWant();
 }
 function closeMo(id){document.getElementById(id).classList.remove('open');}
+
+// ── BULK IMPORT ──
+function openBulk(){
+  document.getElementById('bulkOv').classList.add('open');
+  document.getElementById('bulkSh').classList.add('open');
+  document.getElementById('bulkInput').value='';
+  document.getElementById('bulkPreview').style.display='none';
+  document.getElementById('bulkRegBtn').style.display='none';
+}
+function closeBulk(){
+  document.getElementById('bulkOv').classList.remove('open');
+  document.getElementById('bulkSh').classList.remove('open');
+}
+function parseBulk(text){
+  return text.split('\n')
+    .map(l=>l.replace(/^[\s・\-\•\●\◆\■\▶\→\*\【\】\「\」\d+\.]+/,'').trim())
+    .filter(l=>l.length>0);
+}
+function previewBulk(){
+  const text=document.getElementById('bulkInput').value;
+  const titles=parseBulk(text);
+  if(!titles.length){toast('タイトルが見つかりませんでした');return;}
+  const list=document.getElementById('bulkList');
+  list.innerHTML=titles.map((t,i)=>`<div style="display:flex;align-items:center;gap:8px;font-size:13px;padding:3px 0"><span style="color:var(--text-light);font-size:11px;width:20px;flex-shrink:0">${i+1}</span><span style="color:var(--text-dark)">${t}</span></div>`).join('');
+  document.getElementById('bulkPreview').style.display='block';
+  document.getElementById('bulkRegBtn').style.display='block';
+  document.getElementById('bulkRegBtn').textContent=`${titles.length}冊をまとめて登録する`;
+}
+function execBulk(){
+  const text=document.getElementById('bulkInput').value;
+  const titles=parseBulk(text);
+  if(!titles.length)return;
+  const dt=today();
+  titles.forEach(title=>{
+    S.wantBooks.push({id:uid(),title,author:'',cover:null,genres:[],url:'',memo:'',addedDate:dt});
+  });
+  save();renderWant();closeBulk();
+  toast(`${titles.length}冊を登録しました！`);
+}
 
 // ── ADD SHEET ──
 function openAddSheet(){document.getElementById('addShOv').classList.add('open');document.getElementById('addSh').classList.add('open');}
@@ -430,12 +486,11 @@ function renderRead(){
   const grid=document.getElementById('readGrid');
   grid.style.gridTemplateColumns=`repeat(${S.gridCols},1fr)`;
   const q=document.getElementById('srchR').value.toLowerCase();
-  const sort=document.getElementById('sortSel').value;
   let books=[...S.readBooks];
   if(q)books=books.filter(b=>b.title.toLowerCase().includes(q)||(b.author||'').toLowerCase().includes(q));
   if(S.rGF.length)books=books.filter(b=>S.rGF.every(t=>(b.genres||[]).includes(t)));
   if(S.rEF.length)books=books.filter(b=>S.rEF.every(t=>(b.emotionTags||[]).includes(t)));
-  books.sort((a,b)=>sort==='newest'?new Date(b.dateRead)-new Date(a.dateRead):new Date(a.dateRead)-new Date(b.dateRead));
+  books.sort((a,b)=>new Date(b.dateRead)-new Date(a.dateRead));
   if(!books.length){grid.innerHTML=emptyH('book-open','まだ本がありません','右下の + から追加しよう');return;}
   if(S.grp==='none'){grid.innerHTML=books.map(b=>tileH(b,false)).join('');}
   else{
@@ -569,9 +624,19 @@ function buildForm(type,pre){
     <div class="f-section">
       <div class="fsec">表紙写真</div>
       <label class="cover-drop" id="covDrop">
-        ${S.cov?`<img src="${S.cov}" alt="">`:`<div class="drop-hint"><i class="fa-solid fa-camera" style="font-size:32px;color:#c2d6ee;display:block;margin:0 auto 6px"></i><div>タップして写真を選択</div><div style="font-size:11px;color:#4a7c5f;margin-top:4px">AI でタイトルを自動読み取り</div></div>`}
-        <input type="file" accept="image/*" capture="environment" onchange="handleCov(event)">
+        ${S.cov?`<img src="${S.cov}" alt="">`:`<div class="drop-hint"><i class="fa-solid fa-image" style="font-size:32px;color:#c2d6ee;display:block;margin:0 auto 6px"></i><div>タップして写真を選択</div><div style="font-size:11px;color:#4a7c5f;margin-top:4px">AI でタイトルを自動読み取り</div></div>`}
+        <input type="file" accept="image/*" onchange="handleCov(event)">
       </label>
+      <div style="display:flex;gap:8px;margin-top:6px">
+        <label style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--beige-ui);border-radius:10px;padding:9px;font-size:12px;color:var(--text-mid);cursor:pointer;font-family:var(--font)">
+          <i class="fa-solid fa-camera"></i> カメラ
+          <input type="file" accept="image/*" capture="environment" onchange="handleCov(event)" style="display:none">
+        </label>
+        <label style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--beige-ui);border-radius:10px;padding:9px;font-size:12px;color:var(--text-mid);cursor:pointer;font-family:var(--font)">
+          <i class="fa-solid fa-photo-film"></i> ライブラリ
+          <input type="file" accept="image/*" onchange="handleCov(event)" style="display:none">
+        </label>
+      </div>
     </div>
     <div class="ai-bar" id="aiBar" style="${S.cov?'':'display:none'}">
       <i class="fa-solid fa-wand-magic-sparkles"></i>
