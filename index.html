@@ -371,8 +371,53 @@ let S={
   shTarget:null,
 };
 
-function load(){try{if(typeof localStorage==='undefined')return;const d=JSON.parse(localStorage.getItem('rj4')||'{}');['readBooks','wantBooks','emotionTags','genreTags'].forEach(k=>{if(d[k])S[k]=d[k];});}catch(e){}}
-function save(){try{if(typeof localStorage==='undefined')return;localStorage.setItem('rj4',JSON.stringify({readBooks:S.readBooks,wantBooks:S.wantBooks,emotionTags:S.emotionTags,genreTags:S.genreTags}));}catch(e){}}
+function load(){
+  try{
+    if(typeof localStorage==='undefined')return;
+    const d=JSON.parse(localStorage.getItem('rj4')||'{}');
+    ['readBooks','wantBooks','emotionTags','genreTags'].forEach(k=>{if(d[k])S[k]=d[k];});
+  }catch(e){console.warn('load error',e);}
+}
+function save(){
+  try{
+    if(typeof localStorage==='undefined')return;
+    const data=JSON.stringify({readBooks:S.readBooks,wantBooks:S.wantBooks,emotionTags:S.emotionTags,genreTags:S.genreTags});
+    localStorage.setItem('rj4',data);
+  }catch(e){
+    // localStorage full - try saving without images
+    try{
+      const slim={
+        readBooks:S.readBooks.map(b=>({...b,cover:null})),
+        wantBooks:S.wantBooks.map(b=>({...b,cover:null})),
+        emotionTags:S.emotionTags,
+        genreTags:S.genreTags
+      };
+      localStorage.setItem('rj4',JSON.stringify(slim));
+      toast('⚠️ 容量不足のため写真を除いて保存しました');
+    }catch(e2){
+      toast('⚠️ 保存に失敗しました。ストレージが満杯の可能性があります');
+    }
+  }
+}
+
+// 画像を圧縮してbase64に変換
+function compressImage(file, callback){
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const img=new Image();
+    img.onload=()=>{
+      const MAX=600;
+      let w=img.width,h=img.height;
+      if(w>h){if(w>MAX){h=h*MAX/w;w=MAX;}}else{if(h>MAX){w=w*MAX/h;h=MAX;}}
+      const canvas=document.createElement('canvas');
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      callback(canvas.toDataURL('image/jpeg',0.75));
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
 
 // ── NAVIGATION ──
 function nav(p){
@@ -687,51 +732,88 @@ function buildForm(type,pre){
 
 function handleCov(ev){
   const f=ev.target.files[0];if(!f)return;
-  const r=new FileReader();
-  r.onload=e=>{
-    S.cov=e.target.result;
+  compressImage(f,compressed=>{
+    S.cov=compressed;
     const d=document.getElementById('covDrop');
-    d.innerHTML=`<img src="${S.cov}" alt=""><input type="file" accept="image/*" capture="environment" onchange="handleCov(event)">`;
-    document.getElementById('aiBar').style.display='flex';
-  };
-  r.readAsDataURL(f);
+    if(d)d.innerHTML=`<img src="${S.cov}" alt=""><input type="file" accept="image/*" onchange="handleCov(event)">`;
+    const ab=document.getElementById('aiBar');
+    if(ab)ab.style.display='flex';
+  });
 }
 
 async function aiRead(){
   if(!S.cov)return;
+
+  // APIキー確認
+  const apiKey=localStorage.getItem('anthropic_api_key')||'';
+  if(!apiKey){
+    toast('設定タブでAPIキーを登録してください');
+    return;
+  }
+
   document.getElementById('aiTxt').textContent='読み取り中...';
   document.getElementById('aiSpin').classList.add('on');
+
   try{
     const mime=S.cov.match(/data:([^;]+);/)?.[1]||'image/jpeg';
     const b64=S.cov.split(',')[1];
-    const prompt='この本の表紙からタイトル・著者名・ジャンルを読み取り、次のJSON形式のみで返してください。他の文字は不要: title,author,genreのキーを持つJSONオブジェクト。genreは小説/ビジネス本/自己啓発/エッセイ/歴史/科学/詩歌/その他のいずれか。';
+    const prompt='この画像は本の表紙です。タイトル・著者名・ジャンルを読み取り、必ずJSON形式のみで返答してください。余計な文章は不要です。\n形式: {"title":"タイトル","author":"著者名","genre":"小説"}  genreは次のいずれか: 小説, ビジネス本, 自己啓発, エッセイ, 歴史, 科学, 詩歌, その他';
+
     const res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:200,
+        model:'claude-opus-4-6',
+        max_tokens:300,
         messages:[{role:'user',content:[
           {type:'image',source:{type:'base64',media_type:mime,data:b64}},
           {type:'text',text:prompt}
         ]}]
       })
     });
+
+    if(!res.ok){
+      const err=await res.json().catch(()=>({}));
+      if(res.status===401) toast('APIキーが正しくありません');
+      else toast('読み取りエラー: '+( err?.error?.message||res.status));
+      return;
+    }
+
     const data=await res.json();
-    const raw=(data.content?.[0]?.text||'').replace(/```json|```/g,'').trim();
-    const parsed=JSON.parse(raw);
-    if(parsed.title)document.getElementById('fTitle').value=parsed.title;
-    if(parsed.author)document.getElementById('fAuthor').value=parsed.author;
-    if(parsed.genre&&S.genreTags.includes(parsed.genre)&&!S.fG.includes(parsed.genre)){
+    const raw=(data.content?.[0]?.text||'').trim();
+
+    // JSONを柔軟に抽出
+    let parsed=null;
+    const jsonMatch=raw.match(/\{[\s\S]*\}/);
+    if(jsonMatch){
+      try{ parsed=JSON.parse(jsonMatch[0]); }catch(e){}
+    }
+
+    if(!parsed){
+      toast('読み取れませんでした。手動で入力してください。');
+      return;
+    }
+
+    if(parsed.title) document.getElementById('fTitle').value=parsed.title;
+    if(parsed.author) document.getElementById('fAuthor').value=parsed.author;
+    if(parsed.genre && S.genreTags.includes(parsed.genre) && !S.fG.includes(parsed.genre)){
       S.fG.push(parsed.genre);
       document.querySelectorAll('#gChips .chip').forEach(b=>b.classList.toggle('sg',S.fG.includes(b.textContent)));
     }
     toast('読み取り完了！');
+
   }catch(e){
-    toast('読み取れませんでした。手動で入力してください。');
+    console.error('aiRead error:', e);
+    toast('通信エラーが発生しました');
+  }finally{
+    document.getElementById('aiTxt').textContent='読み取る';
+    document.getElementById('aiSpin').classList.remove('on');
   }
-  document.getElementById('aiTxt').textContent='読み取る';
-  document.getElementById('aiSpin').classList.remove('on');
 }
 
 function tChip(type,tag){
@@ -801,6 +883,17 @@ function renderSettings(){
   document.getElementById('setCont').innerHTML=`
     <div class="seth">設定</div>
     <div class="sets">
+      <div class="sets-h"><i class="fa-solid fa-key"></i> AI読み取り（APIキー）</div>
+      <div class="sets-b">
+        <p style="font-size:13px;color:var(--text-mid);line-height:1.7;margin-bottom:10px">表紙写真からタイトルを自動読み取りするにはAnthropicのAPIキーが必要です。<br><a href="https://console.anthropic.com/" target="_blank" style="color:var(--royal)">console.anthropic.com</a> で取得できます。</p>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="password" id="apiKeyInput" class="tadd-i" placeholder="sk-ant-..." value="${localStorage.getItem('anthropic_api_key')||''}" style="font-family:monospace;font-size:12px">
+          <button class="tadd-go" onclick="saveApiKey()">保存</button>
+        </div>
+        <div id="apiKeyStatus" style="font-size:12px;color:var(--text-light);margin-top:6px">${localStorage.getItem('anthropic_api_key')?'✅ APIキーが設定されています':'未設定'}</div>
+      </div>
+    </div>
+    <div class="sets">
       <div class="sets-h"><i class="fa-regular fa-face-smile"></i> 気持ちタグの管理</div>
       <div class="sets-b">
         <div class="tmgr">${S.emotionTags.map(t=>`<div class="ti">${t}<button class="tdel" onclick="delTag('e','${t}')"><i class="fa-solid fa-xmark"></i></button></div>`).join('')}</div>
@@ -854,6 +947,15 @@ function importData(ev){
   r.readAsText(f);
 }
 
+function saveApiKey(){
+  const v=document.getElementById('apiKeyInput')?.value?.trim();
+  if(!v){toast('APIキーを入力してください');return;}
+  if(!v.startsWith('sk-ant-')){toast('APIキーは sk-ant- で始まります');return;}
+  localStorage.setItem('anthropic_api_key',v);
+  document.getElementById('apiKeyStatus').textContent='✅ APIキーが設定されています';
+  toast('APIキーを保存しました');
+}
+
 function addTag(type){const id=type==='e'?'newE':'newG';const v=document.getElementById(id)?.value?.trim();if(!v)return;if(type==='e'){if(!S.emotionTags.includes(v))S.emotionTags.push(v);}else{if(!S.genreTags.includes(v))S.genreTags.push(v);}save();renderSettings();toast('追加しました');}
 function delTag(type,tag){if(type==='e')S.emotionTags=S.emotionTags.filter(t=>t!==tag);else S.genreTags=S.genreTags.filter(t=>t!==tag);save();renderSettings();toast('削除しました');}
 
@@ -866,15 +968,6 @@ function emptyH(icon,h,p){const icMap={"book-open":"fa-solid fa-book-open","book
 
 // ── INIT ──
 load();
-if(!S.readBooks.length){
-  S.readBooks=[
-    {id:'d1',title:'夜は短し歩けよ乙女',author:'森見登美彦',cover:null,genres:['小説'],emotionTags:['面白い','感動した'],stars:1,dateRead:'2025-03-10',memo:'京都を舞台にした幻想的な物語。'},
-    {id:'d2',title:'ゼロ・トゥ・ワン',author:'ピーター・ティール',cover:null,genres:['ビジネス本'],emotionTags:['ためになった','考えさせられた'],stars:1,dateRead:'2025-02-20',memo:'スタートアップの本質を鋭く指摘している。'},
-    {id:'d3',title:'人間失格',author:'太宰治',cover:null,genres:['小説'],emotionTags:['せつない'],stars:2,dateRead:'2025-01-15',memo:''},
-  ];
-  S.wantBooks=[{id:'w1',title:'騎士団長殺し',author:'村上春樹',cover:null,genres:['小説'],url:'',memo:'',addedDate:'2025-03-01'}];
-  save();
-}
 if(!S.rGF)S.rGF=[];if(!S.rEF)S.rEF=[];if(!S.wGF)S.wGF=[];
 renderRead();renderWant();initPinch();
 </script>
